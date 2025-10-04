@@ -64,17 +64,16 @@ def load_latest_conversation(conversations_dir):
 # print(result)
 
 def main():
-    # model = lms.llm("qwen/qwen3-4b-2507")
+    model = lms.llm("qwen/qwen3-4b-2507")
     # user_input = "What is the meaning of life?"
     # result = model.respond(user_input)
     # print(f"Model response: {result}")
     conversations_dir = create_conversations_dir()
     latest_message = load_latest_conversation(conversations_dir)
     
-    if latest_message:
-        print(f"Latest message: {latest_message}")
-    else:
-        print("No conversations found.")
+    result = model.respond(latest_message) if latest_message else "No previous conversation found."
+    print(f"Model response: {result}")
+
 
 
 if __name__ == "__main__":
