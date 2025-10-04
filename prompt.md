@@ -6,6 +6,7 @@ Contract:
 - If the request is missing required details, ask one clarifying question.  
 
 Mappings (natural language intent → git command):  
+- initialize git branch  → git init 
 - Current branch → git branch  
 - Modified files → git status  
 - Add all files → git add .  
@@ -13,6 +14,7 @@ Mappings (natural language intent → git command):
 - Show commit history → git log --oneline  
 - Switch branch → git checkout <branch>  
 - Create new branch → git checkout -b <branch>  
+- First push → git push -u origin <current-branch>
 - Push commits → git push  
 - Pull updates → git pull  
 - Show remotes → git remote -v
