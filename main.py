@@ -21,11 +21,10 @@ def generate_filename():
 def save_conversation(message, conversations_dir):
     """Save the conversation message to a YAML file"""
     conversation_data = {
-        "timestamp": datetime.now().isoformat(),
         "user_input": message,
         "metadata": {
             "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "type": "user_message"
+            "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
     }
     
@@ -57,7 +56,34 @@ def load_latest_conversation(conversations_dir):
             return conversation_data.get('user_input')
     except (yaml.YAMLError, FileNotFoundError, KeyError):
         return None
+    
+def update_conversation_with_ai_response(filepath, ai_response):
+    """Update only AI_response and metadata.updated_at in the YAML file"""
+    try:
+        with open(filepath, 'r', encoding='utf-8') as file:
+            conversation_data = yaml.safe_load(file) or {}
 
+        # Update updated_at
+        metadata = conversation_data.get('metadata') or {}
+        metadata['updated_at'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        conversation_data['metadata'] = metadata
+
+        # Preserve order and append AI_response last
+        new_data = {}
+        for k, v in conversation_data.items():
+            if isinstance(k, str) and k.lower() == 'ai_response':
+                continue
+            new_data[k] = v
+        new_data['AI_response'] = str(ai_response)
+
+        with open(filepath, 'w', encoding='utf-8') as file:
+            yaml.dump(new_data, file, default_flow_style=False, allow_unicode=True, sort_keys=False)
+
+        return True
+    except Exception as e:
+        print(f"Error updating conversation file: {e}")
+        return False
+    
 def main():
     # Setup the CLI
     parser = argparse.ArgumentParser(description="A Local LLM wrapper for using git")
@@ -74,7 +100,8 @@ def main():
     
     # Store and save the message value
     message = ' '.join(args.message)
-    save_conversation(message, conversations_dir)
+    filepath = save_conversation(message, conversations_dir)
+
     
     # Load the model
     model = lms.llm("qwen/qwen3-4b-2507")
@@ -82,6 +109,12 @@ def main():
     # Get AI response for the current message
     result = model.respond(message)
     print(f"Model response: {result}")
+
+    # Update the conversation file with AI response
+    if update_conversation_with_ai_response(filepath, result):
+        return
+    else:
+        print("Failed to save AI response")
 
 if __name__ == "__main__":
     main()
