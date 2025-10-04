@@ -101,14 +101,24 @@ def main():
     # Store and save the message value
     message = ' '.join(args.message)
     filepath = save_conversation(message, conversations_dir)
-
     
     # Load the model
     model = lms.llm("qwen/qwen3-4b-2507")
+
+    # Read system prompt from prompt.md (optional fallback to empty)
+    prompt_path = Path("prompt.md")
+    try:
+        system_prompt = prompt_path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        system_prompt = ""
+    
+    # Integrate the system prompt to the user message 
+    prompt_str = f"{system_prompt}\n\n{message}"
+    compiled_prompt = model.apply_prompt_template(prompt_str)
     
     # Get AI response for the current message
-    result = model.respond(message)
-    print(f"Model response: {result}")
+    result = model.respond(compiled_prompt)
+    print(f" {result}")
 
     # Update the conversation file with AI response
     if update_conversation_with_ai_response(filepath, result):
