@@ -52,20 +52,3 @@ class LMStudioConnector:
             raise ConnectionError(f"Failed to connect to LM Studio: {e}")
         except KeyError as e:
             raise ValueError(f"Unexpected response format from LM Studio: {e}")
-
-    def process_latest_conversation(self, conversations_dir: Path) -> Optional[str]:
-        """Load latest conversation and send to SLM"""
-        from .load_conversation import get_latest_user_message, get_latest_conversation_file, update_conversation_with_response
-        
-        user_message = get_latest_user_message(conversations_dir)
-        if not user_message:
-            return None
-        
-        response = self.send_message(user_message)
-        
-        # Update the conversation file with the response
-        latest_file = get_latest_conversation_file(conversations_dir)
-        if latest_file:
-            update_conversation_with_response(latest_file, response)
-        
-        return response
