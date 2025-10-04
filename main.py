@@ -4,6 +4,8 @@ from datetime import datetime
 from pathlib import Path
 ## Import LM Studio
 import lmstudio as lms
+# import command line argument parser
+import argparse
 
 def create_conversations_dir():
     """Create conversations directory if it doesn't exist"""
@@ -14,7 +16,6 @@ def create_conversations_dir():
 def generate_filename():
     """Generate a unique filename based on current timestamp"""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
     return f"conversation_{timestamp}.yaml"
 
 def save_conversation(message, conversations_dir):
@@ -57,24 +58,30 @@ def load_latest_conversation(conversations_dir):
     except (yaml.YAMLError, FileNotFoundError, KeyError):
         return None
 
-
-# model = lms.llm("qwen/qwen3-4b-2507")
-# result = model.respond("What is the meaning of life?")
-
-# print(result)
-
 def main():
-    model = lms.llm("qwen/qwen3-4b-2507")
-    # user_input = "What is the meaning of life?"
-    # result = model.respond(user_input)
-    # print(f"Model response: {result}")
-    conversations_dir = create_conversations_dir()
-    latest_message = load_latest_conversation(conversations_dir)
+    # Setup the CLI
+    parser = argparse.ArgumentParser(description="A Local LLM wrapper for using git")
+    parser.add_argument('message', nargs='*', help='Natural Language for git action')
+    args = parser.parse_args()
     
-    result = model.respond(latest_message) if latest_message else "No previous conversation found."
+    # Create conversations directory first
+    conversations_dir = create_conversations_dir()
+    
+    # Check if message is provided
+    if not args.message:
+        print("Please provide a message.")
+        return
+    
+    # Store and save the message value
+    message = ' '.join(args.message)
+    save_conversation(message, conversations_dir)
+    
+    # Load the model
+    model = lms.llm("qwen/qwen3-4b-2507")
+    
+    # Get AI response for the current message
+    result = model.respond(message)
     print(f"Model response: {result}")
-
-
 
 if __name__ == "__main__":
     main()
