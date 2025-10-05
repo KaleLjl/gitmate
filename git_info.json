@@ -15,10 +15,6 @@
     {
       "xy": " M",
       "path": "git_info.json"
-    },
-    {
-      "xy": " M",
-      "path": "git_probes.py"
     }
   ],
   "remotes": []
