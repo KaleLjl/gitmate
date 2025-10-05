@@ -1,5 +1,25 @@
 {
   "is_inside_work_tree": true,
   "toplevel": "/Users/lijialei/Work/slm-cli-wrapper",
-  "branch": "main"
+  "branch": "main",
+  "upstream": {
+    "short": "",
+    "remote": "",
+    "fullref": ""
+  },
+  "ahead_behind": {
+    "ahead": 0,
+    "behind": 0
+  },
+  "status_porcelain_v1": [
+    {
+      "xy": " M",
+      "path": "git_info.json"
+    },
+    {
+      "xy": " M",
+      "path": "git_probes.py"
+    }
+  ],
+  "remotes": []
 }
