@@ -121,9 +121,21 @@ def main():
 
 
     # Integrate the system prompt with git context and the user message 
-    prompt= f"{system_prompt}\n\n{git_context}\n{message}"
+    prompt = (
+    f"{system_prompt}\n\n"
+    "### Git Context (JSON)\n"
+    "```json\n"
+    f"{json.dumps(git_context, ensure_ascii=False)}\n"
+    "```\n\n"
+    "### User Intent\n"
+    f"{message}\n\n"
+    "### Output Format\n"
+    "- If sufficient info: output only bash commands in a single code block.\n"
+    "- If insufficient info: output exactly one line starting with 'QUESTION:' and nothing else.\n"
+)
+
     compiled_prompt = model.apply_prompt_template(prompt)
-    
+
     # Get AI response for the current message
     result = model.respond(compiled_prompt)
     print(f" {result}")

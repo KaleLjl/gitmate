@@ -7,16 +7,7 @@ Your core objective is to **recognize missing steps** and generate a minimal, co
 
 Inputs:
 1. **User Intent (natural language)**
-2. **Git Context (JSON)** – includes:
-   {
-     "is_inside_work_tree": true/false,
-     "toplevel": "...",
-     "branch": "...",
-     "upstream_branch": "...",
-     "ahead_behind": {"ahead": n, "behind": n},
-     "git_status": [...],
-     "remote": {...},
-   }
+2. **Git Context (JSON)** 
 
 ---
 
