@@ -3,19 +3,15 @@
   "toplevel": "/Users/lijialei/Work/slm-cli-wrapper",
   "branch": "main",
   "upstream": {
-    "short": "",
-    "remote": "",
-    "fullref": ""
+    "short": "main",
+    "remote": "origin",
+    "fullref": "refs/remotes/origin/main"
   },
   "ahead_behind": {
     "ahead": 0,
     "behind": 0
   },
   "git_status": [
-    {
-      "xy": " M",
-      "path": ".gitignore"
-    },
     {
       "xy": " M",
       "path": "git_info.json"

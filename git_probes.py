@@ -88,19 +88,28 @@ def list_remotes(repo):
     """
     Return a list of remotes with fetch/push URLs:
       [{"name": "origin", "fetch": "...", "push": "..."}, ...]
+    Robust to configs that contain a bare [remote] section or other odd entries.
     """
     cfg = repo.get_config()
     rems = []
-    for sect in cfg.sections():
-        if len(sect) == 2 and sect[0] == b"remote":
-            name = sect[1].decode()
-            url = cfg.get(sect, b"url")
-            pushurl = cfg.get(sect, b"pushurl")
-            rems.append({
-                "name": name,
-                "fetch": url.decode() if url else None,
-                "push": (pushurl.decode() if pushurl else (url.decode() if url else None)),
-            })
+
+    try:
+        remote_names = list(cfg.get_subsections(b"remote"))  # e.g. [b"origin", b"upstream"]
+    except Exception:
+        remote_names = []
+
+    for name_b in remote_names:
+        sect = (b"remote", name_b)  # well-formed section tuple
+        # Guard each access; some remotes may miss url/pushurl
+        url = cfg.get(sect, b"url") if cfg.has_option(sect, b"url") else None
+        pushurl = cfg.get(sect, b"pushurl") if cfg.has_option(sect, b"pushurl") else None
+
+        name = name_b.decode()
+        fetch = url.decode() if isinstance(url, (bytes, bytearray)) else (url or None)
+        push = (pushurl.decode() if isinstance(pushurl, (bytes, bytearray)) else pushurl) or fetch
+
+        rems.append({"name": name, "fetch": fetch, "push": push})
+
     return rems
 
 # ---------- upstream branch (@{u}) ----------
