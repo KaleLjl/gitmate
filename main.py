@@ -1,5 +1,7 @@
 # load and save conversation to YAML file
 import yaml
+# load git context to JSON file 
+import json
 from datetime import datetime
 from pathlib import Path
 ## Import LM Studio
@@ -105,16 +107,22 @@ def main():
     # Load the model
     model = lms.llm("qwen/qwen3-4b-2507")
 
-    # Read system prompt from prompt.md (optional fallback to empty)
-    prompt_path = Path("prompt.md")
+    # Read system prompt 
+    prompt_path = Path("prompts/context_aware_prompt.md")
     try:
         system_prompt = prompt_path.read_text(encoding="utf-8")
     except FileNotFoundError:
         system_prompt = ""
-    
-    # Integrate the system prompt to the user message 
-    prompt_str = f"{system_prompt}\n\n{message}"
-    compiled_prompt = model.apply_prompt_template(prompt_str)
+
+    # Read the git context file 
+    git_context_path = Path("git_info.json")
+    with open(git_context_path, "r") as f:
+        git_context = json.load(f) 
+
+
+    # Integrate the system prompt with git context and the user message 
+    prompt= f"{system_prompt}\n\n{git_context}\n{message}"
+    compiled_prompt = model.apply_prompt_template(prompt)
     
     # Get AI response for the current message
     result = model.respond(compiled_prompt)
