@@ -10,3 +10,4 @@ wheels/
 .venv
 conversations/
 
+git_info.json

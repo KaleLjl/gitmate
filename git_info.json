@@ -11,7 +11,11 @@
     "ahead": 0,
     "behind": 0
   },
-  "status_porcelain_v1": [
+  "git_status": [
+    {
+      "xy": " M",
+      "path": ".gitignore"
+    },
     {
       "xy": " M",
       "path": "git_info.json"

@@ -53,7 +53,7 @@ def current_branch(repo):
 
     # Detached HEAD or cannot resolve
     return ""
-# ---------- git status --porcelain=v1 ----------
+# ---------- git status  ----------
 def status_porcelain(repo):
     """
     Return a list of entries like:
@@ -168,8 +168,7 @@ def write_partial_json(cwd=".", out_name="git_info.json"):
 
         info["ahead_behind"] = ahead_behind(repo, br, up.get("fullref", ""))
 
-        # NEW:
-        info["status_porcelain_v1"] = status_porcelain(repo)
+        info["git_status"] = status_porcelain(repo)
         info["remotes"] = list_remotes(repo)
 
     out_path = os.path.join(cwd, out_name)
