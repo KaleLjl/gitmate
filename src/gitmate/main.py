@@ -123,18 +123,14 @@ def main():
         git_context = yaml.safe_load(f) or {}
     git_context_str = yaml.dump(git_context, default_flow_style=False, allow_unicode=True).strip() or "No git context available."
 
-    # Get the whole system prompt 
-    prompt_segments = []
-    if system_prompt.strip():
-        prompt_segments.append(system_prompt.strip())
-    prompt_segments.append(f"Git Context:\n{git_context_str}")
-    prompt = "\n---\n".join(prompt_segments)
+    prompt = lms.Chat(system_prompt)
+    
+    # The input context 
+    user_message_with_git_context= "git context:\n" + git_context_str + "\n---\n" + "user message:\n" +  message
+    prompt.add_user_message(user_message_with_git_context)
 
-    messages = [
-    {"role": "system", "content": prompt},
-    {"role": "user", "content": message},
-]
-    result = model.respond({"messages": messages})
+
+    result = model.respond(prompt)
     print(f" {result}")
 
     # Update the conversation file with AI response
