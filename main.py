@@ -1,7 +1,6 @@
 # load and save conversation to YAML file
 import yaml
 # load git context to JSON file 
-import json
 from datetime import datetime
 from pathlib import Path
 ## Import LM Studio
@@ -118,29 +117,26 @@ def main():
         system_prompt = ""
 
     # Read the git context file 
-    git_context_path = Path("git_info.json")
-    with open(git_context_path, "r") as f:
-        git_context = json.load(f) 
+    save_repo_description()
+    git_context_path = Path("repo_status.yaml")
+    with open(git_context_path, "r", encoding="utf-8") as f:
+        git_context = yaml.safe_load(f) or {}
 
+    git_context_str = yaml.dump(git_context, default_flow_style=False, allow_unicode=True).strip() or "No git context available."
 
-    # Integrate the system prompt with git context and the user message 
-    prompt = (
-    f"{system_prompt}\n\n"
-    "### Git Context (JSON)\n"
-    "```json\n"
-    f"{json.dumps(git_context, ensure_ascii=False)}\n"
-    "```\n\n"
-    "### User Intent\n"
-    f"{message}\n\n"
-    "### Output Format\n"
-    "- If sufficient info: output only bash commands in a single code block.\n"
-    "- If insufficient info: output exactly one line starting with 'QUESTION:' and nothing else.\n"
-)
+    prompt_segments = []
+    if system_prompt.strip():
+        prompt_segments.append(system_prompt.strip())
+    prompt_segments.append(f"Git Context:\n{git_context_str}")
+    prompt = "\n---\n".join(prompt_segments)
 
-    compiled_prompt = model.apply_prompt_template(prompt)
+    messages = [
+    {"role": "system", "content": prompt},
+    {"role": "user", "content": message},
+]
+    result = model.respond({"messages": messages})
 
-    # Get AI response for the current message
-    result = model.respond(compiled_prompt)
+    result = model.respond({"messages": messages})
     print(f" {result}")
 
     # Update the conversation file with AI response
@@ -148,7 +144,7 @@ def main():
         return
     else:
         print("Failed to save AI response")
+    
 
 if __name__ == "__main__":
-    save_repo_description()
     main()
