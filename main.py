@@ -121,9 +121,9 @@ def main():
     git_context_path = Path("repo_status.yaml")
     with open(git_context_path, "r", encoding="utf-8") as f:
         git_context = yaml.safe_load(f) or {}
-
     git_context_str = yaml.dump(git_context, default_flow_style=False, allow_unicode=True).strip() or "No git context available."
 
+    # Get the whole system prompt 
     prompt_segments = []
     if system_prompt.strip():
         prompt_segments.append(system_prompt.strip())
