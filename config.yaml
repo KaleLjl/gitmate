@@ -1,4 +1,0 @@
-echo_ai_response: true            # print AI output to terminal
-extract_bash_code_block: true     # show only the command inside ```bash ... ```
-copy_to_clipboard: false          # copy command to macOS clipboard via pbcopy
-auto_execute: false               # ask to run the command (off by default)
