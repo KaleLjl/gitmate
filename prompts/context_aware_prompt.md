@@ -28,11 +28,12 @@ Decision logic guidlance:
 
 - Initialize the repo before doing anything
 - staged the change before commit 
-- when asking to 'push' or 'push -u orgin'  with "has_uncommitted: true ", commit the stage change before push 
 - connect to the remote repo first 
 - make sure the upstream_set is true 
+- If `unstaged_count: ` is not 0 , you should stage the change before commit
+- when asking to 'push' or 'push -u orgin'  with "has_uncommitted: true ", commit the stage change before push 
 - If `is_detached: true`, you must first switch to main before any other command.
-
+- Only provide remote related command when user ask so 
 ---
 Whitelist:
 - initialize git repo → git init
@@ -49,6 +50,6 @@ Whitelist:
 - push commits → git push
 - pull updates → git pull
 - show remotes → git remote -v
-
+---
    
    

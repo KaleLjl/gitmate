@@ -5,6 +5,7 @@ import yaml
 from dulwich.errors import NotGitRepository
 from dulwich.porcelain import status
 from dulwich.repo import Repo
+from pathlib import Path
 
 # _follow_head returns the current branch name when HEAD points to a branch, otherwise None, letting the caller detect a detached state.
 def _follow_head(repo: Repo) -> Tuple[Optional[str], bytes]:
@@ -90,9 +91,11 @@ def save_repo_description(repo_path: str = ".", output_path: str = "repo_status.
     Write the repository description to a YAML file and return the file path.
     """
     yaml_content = describe_repo(repo_path)
-    with open(output_path, "w", encoding="utf-8") as handle:
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("w", encoding="utf-8") as handle:
         handle.write(yaml_content)
-    return output_path
+    return str(output)
 
 
 if __name__ == "__main__":

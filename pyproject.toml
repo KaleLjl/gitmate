@@ -1,7 +1,7 @@
 [project]
-name = "slm-cli-wrapper"
-version = "0.1.0"
-description = "Add your description here"
+name = "gitmate"
+version = "0.2.0"
+description = "This local language model would read through the git repo info , and suggest the git command for you "
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

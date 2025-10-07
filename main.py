@@ -1,21 +1,23 @@
-# load and save conversation to YAML file
-import yaml
-# load git context to JSON file 
+import argparse
 from datetime import datetime
 from pathlib import Path
+import yaml
 ## Import LM Studio
 import lmstudio as lms
-# import command line argument parser
-import argparse
-
 # import the probes to get the current git status
 from src.git_probes import save_repo_description
 
+PACKAGE_ROOT = Path(__file__).resolve().parent
+DATA_ROOT = Path.home() / ".gitmate"
+CONVERSATIONS_DIR = DATA_ROOT / "conversations"
+PROMPT_PATH = PACKAGE_ROOT / "prompts" / "context_aware_prompt.md"
+DEFAULT_REPO_STATUS_PATH = DATA_ROOT / "repo_status.yaml"
+
 def create_conversations_dir():
     """Create conversations directory if it doesn't exist"""
-    conversations_dir = Path("conversations")
-    conversations_dir.mkdir(exist_ok=True)
-    return conversations_dir
+    DATA_ROOT.mkdir(parents=True, exist_ok=True)
+    CONVERSATIONS_DIR.mkdir(parents=True, exist_ok=True)
+    return CONVERSATIONS_DIR
 
 def generate_filename():
     """Generate a unique filename based on current timestamp"""
@@ -110,16 +112,14 @@ def main():
     model = lms.llm("qwen/qwen3-4b-2507")
 
     # Read system prompt 
-    prompt_path = Path("prompts/context_aware_prompt.md")
     try:
-        system_prompt = prompt_path.read_text(encoding="utf-8")
+        system_prompt = PROMPT_PATH.read_text(encoding="utf-8")
     except FileNotFoundError:
         system_prompt = ""
 
     # Read the git context file 
-    save_repo_description()
-    git_context_path = Path("repo_status.yaml")
-    with open(git_context_path, "r", encoding="utf-8") as f:
+    save_repo_description(repo_path=Path.cwd(), output_path=DEFAULT_REPO_STATUS_PATH)
+    with open(DEFAULT_REPO_STATUS_PATH, "r", encoding="utf-8") as f:
         git_context = yaml.safe_load(f) or {}
     git_context_str = yaml.dump(git_context, default_flow_style=False, allow_unicode=True).strip() or "No git context available."
 
@@ -134,8 +134,6 @@ def main():
     {"role": "system", "content": prompt},
     {"role": "user", "content": message},
 ]
-    result = model.respond({"messages": messages})
-
     result = model.respond({"messages": messages})
     print(f" {result}")
 
