@@ -5,7 +5,7 @@ import yaml
 ## Import LM Studio
 import lmstudio as lms
 # import the probes to get the current git status
-from src.git_probes import save_repo_description
+from git_probes import save_repo_description
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
 DATA_ROOT = Path.home() / ".gitmate"
