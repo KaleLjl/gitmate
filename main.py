@@ -9,6 +9,9 @@ import lmstudio as lms
 # import command line argument parser
 import argparse
 
+# import the probes to get the current git status
+from src.git_probes import save_repo_description
+
 def create_conversations_dir():
     """Create conversations directory if it doesn't exist"""
     conversations_dir = Path("conversations")
@@ -147,4 +150,5 @@ def main():
         print("Failed to save AI response")
 
 if __name__ == "__main__":
+    save_repo_description()
     main()
