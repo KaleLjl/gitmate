@@ -119,14 +119,14 @@ def main():
     save_repo_description(repo_path=Path.cwd(), output_path=DEFAULT_REPO_STATUS_PATH)
     with open(DEFAULT_REPO_STATUS_PATH, "r", encoding="utf-8") as f:
         git_context = yaml.safe_load(f) or {}
-    git_context_str = yaml.dump(git_context, default_flow_style=False, allow_unicode=True).strip() or "No git context available."
+    git_context_str = yaml.dump(git_context, default_flow_style=False, allow_unicode=True, sort_keys=False).strip() or "No git context available."
 
     
     # Load the model
     model, tokenizer = load(MODEL_PATH)
 
     # apply the prompt 
-    prompt= "\n---\n" + "git context:\n" + git_context_str + "\n---\n" + "user message:\n" +  message      # define the input prompt
+    prompt= "User message: " + message + "\n\n---\n\nContext:\n```yaml\n" + git_context_str      # define the input prompt
 
     messages = [
         {"role": "system", "content": system_prompt},
