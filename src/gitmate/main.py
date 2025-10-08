@@ -2,10 +2,10 @@ import argparse
 from datetime import datetime
 from pathlib import Path
 import yaml
-## Import LM Studio
-import lmstudio as lms
 # import the probes to get the current git status
 from gitmate.git_probes import save_repo_description
+#import the inference engine
+from mlx_lm import load, generate
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
 DATA_ROOT = Path.home() / ".gitmate"
@@ -108,9 +108,6 @@ def main():
     message = ' '.join(args.message)
     filepath = save_conversation(message, conversations_dir)
     
-    # Load the model
-    model = lms.llm("qwen/qwen3-4b-2507")
-
     # Read system prompt 
     try:
         system_prompt = PROMPT_PATH.read_text(encoding="utf-8")
@@ -123,15 +120,26 @@ def main():
         git_context = yaml.safe_load(f) or {}
     git_context_str = yaml.dump(git_context, default_flow_style=False, allow_unicode=True).strip() or "No git context available."
 
-    prompt = lms.Chat(system_prompt)
     
-    # The input context 
-    user_message_with_git_context= "git context:\n" + git_context_str + "\n---\n" + "user message:\n" +  message
-    prompt.add_user_message(user_message_with_git_context)
+    # Load the model
+    model, tokenizer = load("src/gitmate/models/Qwen3-4B-Instruct-2507-MLX-4bit")
+
+    # apply the prompt 
+    prompt= "\n---\n" + "git context:\n" + git_context_str + "\n---\n" + "user message:\n" +  message      # define the input prompt
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": prompt}
+    ]
+    prompt = tokenizer.apply_chat_template(
+        messages, add_generation_prompt= True  # This add_generation_prompt tells the model , the following need to be assitant message 
+    )
+
+    result = generate(model,tokenizer,prompt=prompt,verbose = False)
 
 
-    result = model.respond(prompt)
-    print(f" {result}")
+
+    print(messages)
 
     # Update the conversation file with AI response
     if update_conversation_with_ai_response(filepath, result):
