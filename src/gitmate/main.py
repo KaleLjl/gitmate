@@ -12,6 +12,7 @@ DATA_ROOT = Path.home() / ".gitmate"
 CONVERSATIONS_DIR = DATA_ROOT / "conversations"
 PROMPT_PATH = PACKAGE_ROOT / "prompts" / "context_aware_prompt.md"
 DEFAULT_REPO_STATUS_PATH = DATA_ROOT / "repo_status.yaml"
+MODEL_PATH = PACKAGE_ROOT / "models" / "Qwen3-4B-Instruct-2507-MLX-4bit"
 
 def create_conversations_dir():
     """Create conversations directory if it doesn't exist"""
@@ -122,7 +123,7 @@ def main():
 
     
     # Load the model
-    model, tokenizer = load("src/gitmate/models/Qwen3-4B-Instruct-2507-MLX-4bit")
+    model, tokenizer = load(MODEL_PATH)
 
     # apply the prompt 
     prompt= "\n---\n" + "git context:\n" + git_context_str + "\n---\n" + "user message:\n" +  message      # define the input prompt
@@ -139,7 +140,7 @@ def main():
 
 
 
-    print(messages)
+    print(result)
 
     # Update the conversation file with AI response
     if update_conversation_with_ai_response(filepath, result):

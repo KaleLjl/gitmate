@@ -1,6 +1,6 @@
 [project]
 name = "gitmate"
-version = "0.2.0"
+version = "0.2.2"
 description = "This local language model would read through the git repo info , and suggest the git command for you "
 authors = [
   { name="Jiale Li", email="lijiale77kl@gmail.com" },
