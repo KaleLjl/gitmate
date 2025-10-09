@@ -34,13 +34,14 @@ Gitmate adapts automatically — no manual reasoning needed.
 **Setup steps:**
 
 ```bash
-# 1. Build the project
-uv build .
+# 1. Go to the project directory
+cd gitmate
 
 # 2. Install Gitmate into your uv environment
 uv tool install .
 
 # 3. Run Gitmate
+cd "Your other project with git in it "
 gitmate "show my recent commits"
 ```
 
