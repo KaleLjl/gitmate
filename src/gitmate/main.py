@@ -1,10 +1,9 @@
 import argparse
 from pathlib import Path
-import yaml
 # Import the probes to get the current git status
-from gitmate.git_probes import save_repo_description
+from gitmate.git_probes import get_git_context
 # Import system paths from config
-from gitmate.system_config import PROMPT_PATH, DEFAULT_REPO_STATUS_PATH
+from gitmate.system_config import PROMPT_PATH
 # Import model and conversation management functions
 from gitmate.anwser import (
     create_conversations_dir,
@@ -28,10 +27,7 @@ def main():
     message = ' '.join(args.message)
     
     # Prepare git context
-    save_repo_description(repo_path=Path.cwd(), output_path=DEFAULT_REPO_STATUS_PATH)
-    with open(DEFAULT_REPO_STATUS_PATH, "r", encoding="utf-8") as f:
-        git_context = yaml.safe_load(f) or {}
-    git_context_str = yaml.dump(git_context, default_flow_style=False, allow_unicode=True, sort_keys=False).strip() or "No git context available."
+    git_context_str = get_git_context()
 
     # Read system prompt 
     try:

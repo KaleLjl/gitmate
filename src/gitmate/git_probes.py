@@ -1,6 +1,5 @@
 import os
 from typing import Iterable, Optional, Tuple
-
 import yaml
 from dulwich.errors import NotGitRepository
 from dulwich.porcelain import status
@@ -20,8 +19,8 @@ def _follow_head(repo: Repo) -> Tuple[Optional[str], bytes]:
             return candidate.rsplit(b"/", 1)[-1].decode("utf-8"), sha
     return None, sha
 
-def describe_repo(repo_path: str = ".") -> str:
-    repo_path = os.path.abspath(repo_path)
+def describe_repo() -> str:
+    repo_path = str(Path.cwd())
     try:
         repo = Repo(repo_path)
     except NotGitRepository:
@@ -86,11 +85,28 @@ def describe_repo(repo_path: str = ".") -> str:
     )
 
 
-def save_repo_description(repo_path: str = ".", output_path: str = "repo_status.yaml") -> str:
+def get_git_context() -> str:
+    """
+    Get the current git repository context as a formatted YAML string.
+    Uses the current working directory to locate the git repository.
+    """
+    yaml_content = describe_repo()
+    git_context = yaml.safe_load(yaml_content) or {}
+    git_context_str = yaml.dump(
+        git_context, 
+        default_flow_style=False, 
+        allow_unicode=True, 
+        sort_keys=False
+    ).strip() or "No git context available."
+    return git_context_str
+
+
+def save_repo_description(output_path: str = "repo_status.yaml") -> str:
     """
     Write the repository description to a YAML file and return the file path.
+    Uses the current working directory to locate the git repository.
     """
-    yaml_content = describe_repo(repo_path)
+    yaml_content = describe_repo()
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("w", encoding="utf-8") as handle:
