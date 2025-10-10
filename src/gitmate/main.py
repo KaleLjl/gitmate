@@ -6,13 +6,11 @@ import yaml
 from gitmate.git_probes import save_repo_description
 #import the inference engine
 from mlx_lm import load, generate
-
-PACKAGE_ROOT = Path(__file__).resolve().parent
-DATA_ROOT = Path.home() / ".gitmate"
-CONVERSATIONS_DIR = DATA_ROOT / "conversations"
-PROMPT_PATH = PACKAGE_ROOT / "prompts" / "context_aware_prompt.md"
-DEFAULT_REPO_STATUS_PATH = DATA_ROOT / "repo_status.yaml"
-MODEL_PATH = PACKAGE_ROOT / "models" / "Qwen3-4B-Instruct-2507-MLX-4bit"
+# import system paths from config
+from gitmate.system_config import (
+     DATA_ROOT, CONVERSATIONS_DIR, 
+    PROMPT_PATH, DEFAULT_REPO_STATUS_PATH, MODEL_PATH
+)
 
 def create_conversations_dir():
     """Create conversations directory if it doesn't exist"""
