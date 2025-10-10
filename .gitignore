@@ -16,3 +16,5 @@ git_info.json
 models/
 
 .DS_Store
+
+uv.lock
