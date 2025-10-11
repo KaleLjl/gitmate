@@ -4,6 +4,8 @@ from pathlib import Path
 from gitmate.git_probes import get_git_context
 # Import system paths from config
 from gitmate.system_config import PROMPTS_DIR
+# Import user configuration loader
+from gitmate.load_user_config import load_or_create_user_config
 # Import model and conversation management functions
 from gitmate.anwser import (
     create_conversations_dir,
@@ -33,8 +35,15 @@ def main():
     # Store the message value
     message = ' '.join(args.message)
     
-    # Prepare git context
-    git_context_str = get_git_context()
+    # Load user configuration
+    config = load_or_create_user_config()
+    
+    # Conditionally prepare git context based on user configuration
+    if config.get('git_context', True):
+        git_context_str = get_git_context()
+        SELECTED_PROMPT = "context_aware_prompt.md"
+    else:
+        git_context_str = ""
 
     # Read system prompt with validation
     prompt_path = get_prompt_path(SELECTED_PROMPT)
