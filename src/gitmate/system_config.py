@@ -1,5 +1,5 @@
 from pathlib import Path
-import yaml
+
 
 # System-level path configuration (not exposed to users)
 SYSTEM_CONFIG = {
@@ -18,12 +18,3 @@ CONVERSATIONS_DIR = DATA_ROOT / SYSTEM_CONFIG['conversations_dir']
 PROMPTS_DIR = PACKAGE_ROOT / SYSTEM_CONFIG['prompts_dir']
 DEFAULT_REPO_STATUS_PATH = DATA_ROOT / SYSTEM_CONFIG['repo_status_file']
 MODEL_PATH = PACKAGE_ROOT / SYSTEM_CONFIG['models_dir'] / SYSTEM_CONFIG['model_name']
-
-# User config file location
-CONFIG_DIR = Path.home() / ".gitmate"
-CONFIG_PATH = CONFIG_DIR / "config.yaml"
-
-# Default user configuration
-DEFAULT_CONFIG = {
-    "context_aware": True
-}

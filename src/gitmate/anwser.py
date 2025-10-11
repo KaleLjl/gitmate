@@ -1,5 +1,4 @@
 from datetime import datetime
-from pathlib import Path
 import yaml
 from mlx_lm import load, generate
 from gitmate.system_config import (
