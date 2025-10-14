@@ -10,6 +10,9 @@ wheels/
 .venv
 conversations/
 
+# Test reports
+src/gitmate/test/reports/
+
 git_info.json
 
 # Model files

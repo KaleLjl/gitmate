@@ -1,0 +1,8 @@
+is_repo: true
+branch: feature-branch
+is_detached: false
+staged_count: 0
+unstaged_count: 0
+has_uncommitted: false
+remote_exists: true
+upstream_set: false

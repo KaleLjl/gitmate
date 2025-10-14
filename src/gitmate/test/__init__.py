@@ -1,0 +1,2 @@
+"""Test infrastructure for gitmate."""
+
