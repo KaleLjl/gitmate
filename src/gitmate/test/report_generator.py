@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 
-class TestReportGenerator:
+class ReportGenerator:
     """Generate test reports in YAML/JSON format."""
     
     def __init__(self, output_dir: Path):
@@ -25,9 +25,7 @@ class TestReportGenerator:
         self,
         user_intent: str,
         git_context_name: str,
-        git_context: Dict[str, Any],
-        ai_response: str,
-        error: str = None
+        ai_response: str
     ):
         """
         Add a test result.
@@ -35,20 +33,13 @@ class TestReportGenerator:
         Args:
             user_intent: The user's natural language request
             git_context_name: Name of the git context scenario
-            git_context: The git context dictionary
             ai_response: The AI's response
-            error: Error message if test failed, None if successful
         """
         result = {
             'user_intent': user_intent,
             'git_context_name': git_context_name,
-            'git_context': git_context,
             'ai_response': ai_response,
-            'status': 'failed' if error else 'passed',
         }
-        
-        if error:
-            result['error'] = error
         
         self.results.append(result)
     
@@ -66,10 +57,7 @@ class TestReportGenerator:
             
             intent_map[intent]['scenarios'].append({
                 'git_context_name': result['git_context_name'],
-                'git_context': result['git_context'],
                 'ai_response': result['ai_response'],
-                'status': result['status'],
-                'error': result.get('error')
             })
         
         return list(intent_map.values())
@@ -87,11 +75,6 @@ class TestReportGenerator:
         end_time = datetime.now()
         duration = (end_time - self.start_time).total_seconds()
         
-        # Calculate statistics
-        total_tests = len(self.results)
-        passed_tests = sum(1 for r in self.results if r['status'] == 'passed')
-        failed_tests = total_tests - passed_tests
-        
         # Organize results by user intent
         organized_results = self._organize_by_intent()
         
@@ -100,10 +83,6 @@ class TestReportGenerator:
             'test_run': {
                 'timestamp': self.start_time.strftime("%Y-%m-%d %H:%M:%S"),
                 'duration_seconds': round(duration, 2),
-                'total_tests': total_tests,
-                'passed': passed_tests,
-                'failed': failed_tests,
-                'success_rate': f"{(passed_tests / total_tests * 100):.1f}%" if total_tests > 0 else "0%"
             },
             'results': organized_results
         }
@@ -123,19 +102,4 @@ class TestReportGenerator:
                 yaml.dump(report, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
         
         return filepath
-    
-    def print_summary(self):
-        """Print a summary of test results to console."""
-        total = len(self.results)
-        passed = sum(1 for r in self.results if r['status'] == 'passed')
-        failed = total - passed
-        
-        print("\n" + "=" * 60)
-        print("TEST SUMMARY")
-        print("=" * 60)
-        print(f"Total Tests: {total}")
-        print(f"Passed: {passed}")
-        print(f"Failed: {failed}")
-        print(f"Success Rate: {(passed / total * 100):.1f}%" if total > 0 else "0%")
-        print("=" * 60 + "\n")
 
