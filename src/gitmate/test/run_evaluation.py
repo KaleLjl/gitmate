@@ -37,6 +37,35 @@ def load_git_contexts():
     return contexts
 
 
+def load_expected_outputs():
+    """Load expected outputs from expected_outputs.yaml."""
+    test_dir = get_test_dir()
+    expected_file = test_dir / "expected_outputs.yaml"
+    
+    if not expected_file.exists():
+        return None
+    
+    with open(expected_file, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
+
+
+def normalize_output(text):
+    """Normalize output for fair comparison by removing code blocks and whitespace."""
+    if not text:
+        return ""
+    
+    # Remove code block markers
+    text = text.strip()
+    text = text.replace('```bash\n', '').replace('```bash', '')
+    text = text.replace('```\n', '').replace('```', '')
+    
+    # Normalize whitespace and line breaks
+    lines = [line.strip() for line in text.split('\n') if line.strip()]
+    text = '\n'.join(lines)
+    
+    return text.strip()
+
+
 def format_git_context(context_dict):
     """Format git context dict as YAML string."""
     return yaml.dump(
@@ -65,9 +94,12 @@ def run_evaluation():
     # Load test data
     user_intents = load_user_intents()
     git_contexts = load_git_contexts()
+    expected_outputs = load_expected_outputs()
     
     print(f"Loaded {len(user_intents)} user intents")
     print(f"Loaded {len(git_contexts)} git contexts")
+    if expected_outputs:
+        print("Loaded expected outputs for evaluation")
     print(f"Running {len(user_intents) * len(git_contexts)} test combinations...\n")
     
     # Initialize report generator
@@ -91,11 +123,27 @@ def run_evaluation():
                     system_prompt=system_prompt
                 )
                 
-                # Record result
+                # Get expected output if available
+                expected = None
+                is_correct = None
+                if expected_outputs and user_intent in expected_outputs:
+                    if context_name in expected_outputs[user_intent]:
+                        expected_data = expected_outputs[user_intent][context_name]
+                        expected = expected_data.get('output', '')
+                        
+                        # Compare normalized outputs
+                        is_correct = (
+                            normalize_output(ai_response) == 
+                            normalize_output(expected)
+                        )
+                
+                # Record result with evaluation
                 report_gen.add_result(
                     user_intent=user_intent,
                     git_context_name=context_name,
-                    ai_response=ai_response
+                    ai_response=ai_response,
+                    expected_output=expected,
+                    is_correct=is_correct
                 )
                 
             except Exception as e:
@@ -104,7 +152,9 @@ def run_evaluation():
                 report_gen.add_result(
                     user_intent=user_intent,
                     git_context_name=context_name,
-                    ai_response=f"ERROR: {str(e)}"
+                    ai_response=f"ERROR: {str(e)}",
+                    expected_output=None,
+                    is_correct=None
                 )
     
     # Generate reports
