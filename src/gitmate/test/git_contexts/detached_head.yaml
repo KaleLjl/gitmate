@@ -1,5 +1,5 @@
 is_repo: true
-branch: abc123def456
+branch: ""
 is_detached: true
 staged_count: 0
 unstaged_count: 0
