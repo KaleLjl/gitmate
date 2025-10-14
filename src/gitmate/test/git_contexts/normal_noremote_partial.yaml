@@ -1,0 +1,8 @@
+is_repo: true
+branch: main
+is_detached: false
+staged_count: 3
+unstaged_count: 2
+has_uncommitted: true
+remote_exists: false
+upstream_set: false
