@@ -125,10 +125,12 @@ def get_ai_response(message: str, git_context_str: str, system_prompt: str) -> s
 
     # Post-process: normalize output (commit message + URL placeholders)
     try:
-        from gitmate.postprocess import normalize_output
+        from gitmate.postprocess import normalize_output, enforce_policies
         result = normalize_output(result)
+        # Enforce deterministic, context-aware planners; returns a single code block
+        result = enforce_policies(message, git_context_str, result)
     except Exception:
-        # If post-processing fails for any reason, return raw result
+        # If post-processing fails for any reason, return normalized or raw result
         pass
     
     return result
