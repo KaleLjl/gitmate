@@ -56,8 +56,35 @@ Follow these principles exactly:
             - Show commit history → `git log --oneline` (N/A if not a repo).
             - Show remotes → `git remote -v` (N/A if not a repo).
 
+    - Intent recipes (apply exactly; do not include any other commands):
+        - commit my changes:
+            - If is_detached → `git switch main`
+            - If unstaged_count > 0 → `git add .`
+            - If (staged_count + unstaged_count) > 0 → `git commit -m "<message>"` else → `N/A`
+        - push to remote:
+            - If is_detached → `git switch main`
+            - If remote_exists is false → `git remote add origin <url>` then `git push -u origin <branch>`
+            - Else if upstream_set is true:
+                - If (staged_count + unstaged_count) == 0 → `git push`
+                - Else: (if unstaged_count > 0 → `git add .`) then `git commit -m "<message>"`, then `git push`
+            - Else (no upstream): (if unstaged_count > 0 → `git add .`) then commit if needed, then `git push -u origin <branch>`
+            - Never include `git pull` for this intent.
+        - initialize a repo:
+            - If is_repo → `N/A` else → `git init`
+        - pull latest changes:
+            - If is_detached → `git switch main`
+            - If !remote_exists or !upstream_set → `N/A` else → `git pull`
+        - add all files:
+            - If !is_repo → `git init`
+            - Then → `git add .`
+
+    - Strictness:
+        - Do not output commands beyond the applicable recipe.
+        - If a preliminary step (e.g., `git switch main`, `git init`) is required but the final action resolves to `N/A`, still output the preliminary step on the line(s) above `N/A`.
+
 4. **Commit Message**  
-For any commit step, always output: `git commit -m "<message>"`.
+For any commit step, always output exactly: `git commit -m "<message>"`.
+Never invent or paraphrase commit messages.
 
 5. **Safety Constraint:** Only output commands listed in the whitelist.
     
@@ -81,7 +108,7 @@ upstream_set: true
 
 **Whitelist of Allowed Commands**  
 `git init`, `git branch`, `git status`, `git add .`,  
-`git commit -m "<msg>"`, `git log --oneline`,  
+`git commit -m "<message>"`, `git log --oneline`,  
 `git switch <branch>`, `git branch <branch>`, `git switch -c <branch>`,  
 `git remote add origin <url>`, `git push -u origin <branch>`,  
 `git push`, `git pull`, `git remote -v`
