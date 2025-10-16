@@ -105,7 +105,12 @@ def get_ai_response(message: str, git_context_str: str, system_prompt: str) -> s
     model, tokenizer = load(MODEL_PATH)
 
     # Apply the prompt 
-    prompt = "User message: " + message + "\n\n---\n\nContext:\n```yaml\n" + git_context_str
+    prompt = (
+        "User message: " + message
+        + "\n\n---\n\nGit Context (YAML):\n```yaml\n"
+        + git_context_str
+        + "\n```\n\nEnd of context."
+    )
 
     messages = [
         {"role": "system", "content": system_prompt},
@@ -117,6 +122,14 @@ def get_ai_response(message: str, git_context_str: str, system_prompt: str) -> s
     )
 
     result = generate(model, tokenizer, prompt=prompt, verbose=False)
+
+    # Post-process: normalize commit messages to the exact required literal
+    try:
+        from gitmate.postprocess import normalize_commit_messages
+        result = normalize_commit_messages(result)
+    except Exception:
+        # If post-processing fails for any reason, return raw result
+        pass
     
     return result
 
