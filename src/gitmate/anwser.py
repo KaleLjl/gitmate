@@ -123,10 +123,10 @@ def get_ai_response(message: str, git_context_str: str, system_prompt: str) -> s
 
     result = generate(model, tokenizer, prompt=prompt, verbose=False)
 
-    # Post-process: normalize commit messages to the exact required literal
+    # Post-process: normalize output (commit message + URL placeholders)
     try:
-        from gitmate.postprocess import normalize_commit_messages
-        result = normalize_commit_messages(result)
+        from gitmate.postprocess import normalize_output
+        result = normalize_output(result)
     except Exception:
         # If post-processing fails for any reason, return raw result
         pass
