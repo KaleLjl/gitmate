@@ -18,23 +18,48 @@ Follow these principles exactly:
         
     - Apply the following logic when deciding commands:
         
-        - If not a repo → `git init`
-            
-        - If detached → `git switch main` before any other action
-            
-        - If unstaged files exist → `git add .`
-            
-        - Always stage before committing
-            
-        - If uncommitted and pushing → commit first
-            
-        - Add a remote before pushing
-            
-        - Ensure upstream is set before pushing
-            
-        - Include remote commands only if explicitly requested
-            
-4. **Safety Constraint:** Only output commands listed in the whitelist.
+        - Non-repo handling:
+            - If intent ∈ {add all files, commit my changes, push to remote, create a new branch called feature} → `git init` first.
+            - Otherwise (status, show commit history, show remotes, switch to main branch) → `N/A`.
+
+        - Detached HEAD:
+            - If intent ∈ {commit my changes, push to remote, pull latest changes, switch to main branch} → `git switch main` first.
+            - If intent is "create a new branch called feature" and detached → `git switch main` then `git branch feature`.
+            - Do not switch for read-only intents (status, log, remotes) or for "add all files".
+
+        - Staging and committing:
+            - commit my changes:
+                - If unstaged_count > 0 → `git add .` then `git commit -m "<message>"`.
+                - Else if staged_count > 0 → `git commit -m "<message>"`.
+                - Else → `N/A`.
+            - push to remote:
+                - If unstaged_count > 0 → `git add .`.
+                - If has_uncommitted → `git commit -m "<message>"`.
+
+        - Pushing:
+            - Only include remote commands for the "push to remote" intent.
+            - If remote does not exist → `git remote add origin <url>` then `git push -u origin <branch>`.
+            - Else if upstream is set → `git push`.
+            - Else → `git push -u origin <branch>`.
+
+        - Pulling:
+            - Use only `git pull` (no arguments).
+            - If pulling while detached → `git switch main` then `git pull`.
+            - If no remote or no upstream set → `N/A`.
+
+        - Branch creation:
+            - For "create a new branch called feature": output only `git branch feature`.
+            - If detached → switch to main first, then create the branch.
+
+        - Read-only intents:
+            - Status → `git status` (N/A if not a repo).
+            - Show commit history → `git log --oneline` (N/A if not a repo).
+            - Show remotes → `git remote -v` (N/A if not a repo).
+
+4. **Commit Message**  
+For any commit step, always output: `git commit -m "<message>"`.
+
+5. **Safety Constraint:** Only output commands listed in the whitelist.
     
 
 ---
@@ -62,7 +87,3 @@ upstream_set: true
 `git push`, `git pull`, `git remote -v`
 
 ---
-
-Would you like me to now compress this into a **single-line version** (ready to embed as `system_prompt` in Python code)?
-
-   

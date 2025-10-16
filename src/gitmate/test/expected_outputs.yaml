@@ -14,14 +14,14 @@
     output: |
       ```
       git add .
-      git commit -m "commit my changes"
+      git commit -m "<message>"
       ```
     reason: "Stage unstaged files then commit"
 
   normal_remote_staged:
     output: |
       ```
-      git commit -m "commit my changes"
+      git commit -m "<message>"
       ```
     reason: "Files already staged, just commit"
 
@@ -29,7 +29,7 @@
     output: |
       ```
       git add .
-      git commit -m "commit my changes"
+      git commit -m "<message>"
       ```
     reason: "Stage remaining unstaged files, then commit all"
 
@@ -44,14 +44,14 @@
     output: |
       ```
       git add .
-      git commit -m "commit my changes"
+      git commit -m "<message>"
       ```
     reason: "Stage and commit (remote not needed for commit intent)"
 
   normal_noremote_staged:
     output: |
       ```
-      git commit -m "commit my changes"
+      git commit -m "<message>"
       ```
     reason: "Already staged, just commit"
 
@@ -59,7 +59,7 @@
     output: |
       ```
       git add .
-      git commit -m "commit my changes"
+      git commit -m "<message>"
       ```
     reason: "Stage remaining files and commit"
 
@@ -98,7 +98,7 @@
     output: |
       ```
       git add .
-      git commit -m "push to remote"
+      git commit -m "<message>"
       git push
       ```
     reason: "Stage, commit uncommitted changes, then push"
@@ -106,7 +106,7 @@
   normal_remote_staged:
     output: |
       ```
-      git commit -m "push to remote"
+      git commit -m "<message>"
       git push
       ```
     reason: "Commit staged changes, then push"
@@ -115,7 +115,7 @@
     output: |
       ```
       git add .
-      git commit -m "push to remote"
+      git commit -m "<message>"
       git push
       ```
     reason: "Stage all, commit, then push"
@@ -132,7 +132,7 @@
     output: |
       ```
       git add .
-      git commit -m "push to remote"
+      git commit -m "<message>"
       git remote add origin <url>
       git push -u origin main
       ```
@@ -141,7 +141,7 @@
   normal_noremote_staged:
     output: |
       ```
-      git commit -m "push to remote"
+      git commit -m "<message>"
       git remote add origin <url>
       git push -u origin main
       ```
@@ -151,7 +151,7 @@
     output: |
       ```
       git add .
-      git commit -m "push to remote"
+      git commit -m "<message>"
       git remote add origin <url>
       git push -u origin main
       ```
