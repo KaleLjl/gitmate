@@ -5,6 +5,7 @@ description = "This local language model would read through the git repo info , 
 authors = [
   { name="Jiale Li", email="lijiale77kl@gmail.com" },
 ]
+license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
