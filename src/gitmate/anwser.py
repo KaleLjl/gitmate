@@ -2,8 +2,7 @@ from datetime import datetime
 import yaml
 from mlx_lm import load, generate
 from gitmate.system_config import (
-    DATA_ROOT, CONVERSATIONS_DIR, 
-     MODEL_PATH
+    DATA_ROOT, CONVERSATIONS_DIR, MLX_MODEL
 )
 
 
@@ -102,7 +101,7 @@ def get_ai_response(message: str, git_context_str: str, system_prompt: str) -> s
         The AI-generated response as a string
     """
     # Load the model
-    model, tokenizer = load(MODEL_PATH)
+    model, tokenizer = load(MLX_MODEL)
 
     # Apply the prompt 
     prompt = (
