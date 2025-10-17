@@ -11,7 +11,7 @@ from gitmate.anwser import (
     create_conversations_dir,
     save_conversation,
     update_conversation_with_ai_response,
-    get_ai_response
+    get_mlx_ai_response
 )
 
 def get_prompt_path(prompt_filename):
@@ -62,7 +62,7 @@ def main():
     filepath = save_conversation(message, conversations_dir)
     
     # Get AI response
-    result = get_ai_response(message, git_context_str, system_prompt)
+    result = get_mlx_ai_response(message, git_context_str, system_prompt)
     
     print(result)
 

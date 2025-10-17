@@ -88,7 +88,7 @@ def update_conversation_with_ai_response(filepath, ai_response):
         return False
 
 
-def get_ai_response(message: str, git_context_str: str, system_prompt: str) -> str:
+def get_mlx_ai_response(message: str, git_context_str: str, system_prompt: str) -> str:
     """
     Get AI response using the local MLX model.
     
