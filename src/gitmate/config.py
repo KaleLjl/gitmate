@@ -16,10 +16,12 @@ CONVERSATIONS_DIR = DATA_ROOT / SYSTEM_CONFIG['conversations_dir']
 PROMPTS_DIR = PACKAGE_ROOT / SYSTEM_CONFIG['prompts_dir']
 DEFAULT_REPO_STATUS_PATH = DATA_ROOT / SYSTEM_CONFIG['repo_status_file']
 MLX_MODEL = 'mlx-community/Qwen2.5-3B-Instruct-4bit'
+TRANSFORMERS_MODEL = 'Qwen/Qwen2.5-3B-Instruct'
 
 # Create default configuration
 default_config = {
-    'git_context': True
+    'git_context': True,
+    'inference_engine': 'mlx'
 }
 
 def load_or_create_user_config():
