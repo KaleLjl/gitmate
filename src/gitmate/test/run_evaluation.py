@@ -2,7 +2,7 @@
 import yaml
 from pathlib import Path
 from gitmate.anwser import get_ai_response
-from gitmate.system_config import PROMPTS_DIR
+from gitmate.config import PROMPTS_DIR
 from gitmate.test.report_generator import ReportGenerator
 
 

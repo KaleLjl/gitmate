@@ -1,7 +1,7 @@
 from datetime import datetime
 import yaml
 from mlx_lm import load, generate
-from gitmate.system_config import (
+from gitmate.config import (
     DATA_ROOT, CONVERSATIONS_DIR, MLX_MODEL
 )
 

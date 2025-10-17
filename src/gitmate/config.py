@@ -1,13 +1,27 @@
 import yaml
 from pathlib import Path
-from gitmate.system_config import (
-    DATA_ROOT
-)
 
- # Create default configuration
+# System-level path configuration (not exposed to users)
+SYSTEM_CONFIG = {
+    'data_dir_name': '.gitmate',
+    'conversations_dir': 'conversations',
+    'prompts_dir': 'prompts',
+    'repo_status_file': 'repo_status.yaml',
+}
+
+# Compute system paths
+PACKAGE_ROOT = Path(__file__).resolve().parent
+DATA_ROOT = Path.home() / SYSTEM_CONFIG['data_dir_name']
+CONVERSATIONS_DIR = DATA_ROOT / SYSTEM_CONFIG['conversations_dir']
+PROMPTS_DIR = PACKAGE_ROOT / SYSTEM_CONFIG['prompts_dir']
+DEFAULT_REPO_STATUS_PATH = DATA_ROOT / SYSTEM_CONFIG['repo_status_file']
+MLX_MODEL = 'mlx-community/Qwen2.5-3B-Instruct-4bit'
+
+# Create default configuration
 default_config = {
-            'git_context': True
-        }
+    'git_context': True
+}
+
 def load_or_create_user_config():
     """
     Load user configuration from config.yaml.

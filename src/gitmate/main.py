@@ -3,9 +3,9 @@ from pathlib import Path
 # Import the probes to get the current git status
 from gitmate.git_probes import get_git_context
 # Import system paths from config
-from gitmate.system_config import PROMPTS_DIR
+from gitmate.config import PROMPTS_DIR
 # Import user configuration loader
-from gitmate.load_user_config import load_or_create_user_config
+from gitmate.config import load_or_create_user_config
 # Import model and conversation management functions
 from gitmate.anwser import (
     create_conversations_dir,
