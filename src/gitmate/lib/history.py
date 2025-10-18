@@ -16,8 +16,11 @@ def generate_filename():
     return f"conversation_{timestamp}.yaml"
 
 
-def save_conversation(message, conversations_dir):
+def save_conversation(message):
     """Save the conversation message to a YAML file"""
+    # Create conversations directory if it doesn't exist
+    conversations_dir = create_conversations_dir()
+    
     conversation_data = {
         "user_input": message,
         "metadata": {

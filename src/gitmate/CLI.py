@@ -7,7 +7,6 @@ from gitmate.config import PROMPTS_DIR
 from gitmate.lib.user_config import load_or_create_user_config
 # Import conversation management functions
 from gitmate.lib.history import (
-    create_conversations_dir,
     save_conversation,
     update_conversation_with_ai_response
 )
@@ -53,9 +52,8 @@ def main():
                 print(f"  - {prompt_file.name}")
         return
 
-    # Create conversations directory and save user message
-    conversations_dir = create_conversations_dir()
-    filepath = save_conversation(message, conversations_dir)
+    # Save user message
+    filepath = save_conversation(message)
     
     # Get AI response based on selected inference engine
     result = get_ai_response(inference_engine, message, git_context_str, system_prompt)

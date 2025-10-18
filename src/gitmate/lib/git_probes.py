@@ -1,10 +1,10 @@
-
 from typing import Iterable, Optional, Tuple
 import yaml
 from dulwich.errors import NotGitRepository
 from dulwich.porcelain import status
 from dulwich.repo import Repo
 from pathlib import Path
+from gitmate.config import DEFAULT_REPO_STATUS_PATH
 
 # _follow_head returns the current branch name when HEAD points to a branch, otherwise None, letting the caller detect a detached state.
 def _follow_head(repo: Repo) -> Tuple[Optional[str], bytes]:
@@ -91,7 +91,6 @@ def get_git_context() -> str:
     Also saves the context to .gitmate/repo_status.yaml for caching.
     Uses the current working directory to locate the git repository.
     """
-    from gitmate.config import DEFAULT_REPO_STATUS_PATH
     
     yaml_content = describe_repo()
     git_context = yaml.safe_load(yaml_content) or {}
@@ -110,4 +109,6 @@ def get_git_context() -> str:
     ).strip() or "No git context available."
     
     return git_context_str
+
+
 
