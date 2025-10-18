@@ -4,7 +4,7 @@ from gitmate.lib.git_probes import get_git_context
 # Import system paths from config
 from gitmate.config import PROMPTS_DIR
 # Import user configuration loader
-from gitmate.config import load_or_create_user_config
+from gitmate.lib.user_config import load_or_create_user_config
 # Import model and conversation management functions
 from gitmate.lib.anwser import (
     create_conversations_dir,
@@ -36,10 +36,10 @@ def main():
     message = ' '.join(args.message)
     
     # Load user configuration
-    config = load_or_create_user_config()
+    git_context, inference_engine = load_or_create_user_config()
     
     # Conditionally prepare git context based on user configuration
-    if config.get('git_context', True):
+    if git_context:
         git_context_str = get_git_context()
         SELECTED_PROMPT = "context_aware_prompt.md"
     else:
@@ -62,8 +62,7 @@ def main():
     filepath = save_conversation(message, conversations_dir)
     
     # Get AI response based on selected inference engine
-    engine = config.get('inference_engine', 'mlx')
-    if engine == 'transformers':
+    if inference_engine == 'transformers':
         result = get_transformers_ai_response(message, git_context_str, system_prompt)
     else:
         result = get_mlx_ai_response(message, git_context_str, system_prompt)
