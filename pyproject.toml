@@ -24,3 +24,4 @@ build-backend = "uv_build"
 
 [project.scripts]
 gitmate = "gitmate.CLI:main"
+gitmate-interactive = "gitmate.interactive:main"
