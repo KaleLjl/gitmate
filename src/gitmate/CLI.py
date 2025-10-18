@@ -1,13 +1,12 @@
 import argparse
-from pathlib import Path
 # Import the probes to get the current git status
-from gitmate.git_probes import get_git_context
+from gitmate.lib.git_probes import get_git_context
 # Import system paths from config
 from gitmate.config import PROMPTS_DIR
 # Import user configuration loader
 from gitmate.config import load_or_create_user_config
 # Import model and conversation management functions
-from gitmate.anwser import (
+from gitmate.lib.anwser import (
     create_conversations_dir,
     save_conversation,
     update_conversation_with_ai_response,
