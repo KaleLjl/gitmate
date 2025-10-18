@@ -58,6 +58,15 @@ def main():
     # Get AI response based on selected inference engine
     result = get_ai_response(inference_engine, message, git_context_str, system_prompt)
     
+    # Post-process the AI response
+    try:
+        from gitmate.lib.postprocess import normalize_output, enforce_policies
+        result = normalize_output(result)
+        result = enforce_policies(message, git_context_str, result)
+    except Exception:
+        # If post-processing fails, use the raw result
+        pass
+    
     print(result)
 
     # Update the conversation file with AI response

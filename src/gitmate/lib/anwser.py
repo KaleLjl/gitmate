@@ -37,16 +37,6 @@ def get_mlx_ai_response(message: str, git_context_str: str, system_prompt: str) 
     )
 
     result = generate(model, tokenizer, prompt=prompt, verbose=False)
-
-    # Post-process: normalize output (commit message + URL placeholders)
-    try:
-        from gitmate.lib.postprocess import normalize_output, enforce_policies
-        result = normalize_output(result)
-        # Enforce deterministic, context-aware planners; returns a single code block
-        result = enforce_policies(message, git_context_str, result)
-    except Exception:
-        # If post-processing fails for any reason, return normalized or raw result
-        pass
     
     return result
 
@@ -112,16 +102,6 @@ def get_transformers_ai_response(message: str, git_context_str: str, system_prom
     # Decode only the new tokens (response part)
     response_tokens = outputs[0][inputs['input_ids'].shape[1]:]
     result = tokenizer.decode(response_tokens, skip_special_tokens=True)
-
-    # Post-process: normalize output (commit message + URL placeholders)
-    try:
-        from gitmate.lib.postprocess import normalize_output, enforce_policies
-        result = normalize_output(result)
-        # Enforce deterministic, context-aware planners; returns a single code block
-        result = enforce_policies(message, git_context_str, result)
-    except Exception:
-        # If post-processing fails for any reason, return normalized or raw result
-        pass
     
     return result
 
