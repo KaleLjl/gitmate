@@ -1,5 +1,5 @@
 import yaml
-from gitmate.config import DATA_ROOT
+from gitmate.config import DATA_ROOT, USER_CONFIG_PATH
 
 # Create default configuration
 default_config = {
@@ -17,7 +17,7 @@ def load_or_create_user_config():
         tuple: (git_context, inference_engine) - Direct values from config
     """
     # Define the config file path
-    config_path = DATA_ROOT / "config.yaml"
+    config_path = USER_CONFIG_PATH
     
     # Create DATA_ROOT directory if it doesn't exist
     DATA_ROOT.mkdir(parents=True, exist_ok=True)

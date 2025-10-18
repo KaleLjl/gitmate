@@ -3,6 +3,7 @@ GitMate Setup Script - Interactive setup for OS detection and model recommendati
 """
 import platform
 import sys
+from pathlib import Path
 from typing import Dict, Any
 
 try:
@@ -11,8 +12,7 @@ try:
 except ImportError:
     TORCH_AVAILABLE = False
 
-from gitmate.config import DATA_ROOT
-from gitmate.lib.user_config import load_or_create_user_config
+from gitmate.config import DATA_ROOT, MLX_MODEL_DIR, TRANSFORMERS_MODEL_DIR, MLX_MODEL, TRANSFORMERS_MODEL, USER_CONFIG_PATH
 
 
 def detect_os_and_hardware() -> Dict[str, Any]:
@@ -139,6 +139,92 @@ def prompt_user_choice(recommendation: str) -> str:
             sys.exit(1)
 
 
+def check_model_availability(model_path: Path) -> bool:
+    """
+    Check if model is already downloaded locally.
+    
+    Args:
+        model_path: Path to the model directory
+        
+    Returns:
+        True if model directory exists and contains model files
+    """
+    if not model_path.exists():
+        return False
+    
+    # Check for common model files
+    model_files = ['config.json', 'tokenizer.json', 'tokenizer_config.json']
+    return any((model_path / file).exists() for file in model_files)
+
+
+def download_model(model_id: str, target_dir: Path, model_type: str) -> Path:
+    """
+    Download model from Hugging Face Hub to local directory.
+    
+    Args:
+        model_id: Hugging Face model ID
+        target_dir: Local directory to download to
+        model_type: Type of model (MLX or Transformers)
+        
+    Returns:
+        Path to the downloaded model directory
+    """
+    from huggingface_hub import snapshot_download
+    
+    print(f"📥 Downloading {model_type} model: {model_id}")
+    print(f"   Target directory: {target_dir}")
+    print("   This may take a few minutes depending on your internet connection...")
+    print()
+    
+    # Create target directory
+    target_dir.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        model_path = snapshot_download(
+            repo_id=model_id,
+            local_dir=target_dir,
+            resume_download=True,
+            local_files_only=False
+        )
+        print(f"✅ {model_type} model downloaded successfully!")
+        print(f"   Model path: {model_path}")
+        return Path(model_path)
+        
+    except Exception as e:
+        print(f"❌ Failed to download {model_type} model: {e}")
+        print(f"   Please check your internet connection and try again.")
+        raise
+
+
+def download_selected_model(inference_engine: str) -> str:
+    """
+    Download the model for the selected inference engine.
+    
+    Args:
+        inference_engine: Selected engine ('mlx' or 'transformers')
+        
+    Returns:
+        Path to the downloaded model as string
+    """
+    if inference_engine == 'mlx':
+        model_id = MLX_MODEL
+        target_dir = MLX_MODEL_DIR
+        model_type = "MLX"
+    else:  # transformers
+        model_id = TRANSFORMERS_MODEL
+        target_dir = TRANSFORMERS_MODEL_DIR
+        model_type = "Transformers"
+    
+    # Check if model already exists
+    if check_model_availability(target_dir):
+        print(f"✅ {model_type} model already downloaded at: {target_dir}")
+        return str(target_dir)
+    
+    # Download the model
+    model_path = download_model(model_id, target_dir, model_type)
+    return str(model_path)
+
+
 def update_config(inference_engine: str) -> None:
     """
     Update the configuration file with the selected inference engine.
@@ -148,7 +234,7 @@ def update_config(inference_engine: str) -> None:
     """
     import yaml
     
-    config_path = DATA_ROOT / "config.yaml"
+    config_path = USER_CONFIG_PATH
     
     # Create DATA_ROOT directory if it doesn't exist
     DATA_ROOT.mkdir(parents=True, exist_ok=True)
@@ -196,7 +282,7 @@ def confirm_setup(inference_engine: str) -> bool:
     """
     print(f"\n🔧 Setup Summary:")
     print(f"   Selected Engine: {inference_engine.upper()}")
-    print(f"   Config Location: {DATA_ROOT / 'config.yaml'}")
+    print(f"   Config Location: {USER_CONFIG_PATH}")
     print()
     
     while True:
@@ -215,7 +301,7 @@ def confirm_setup(inference_engine: str) -> bool:
             sys.exit(1)
 
 
-def main() -> None:
+def main():
     """Main setup function."""
     print("🚀 GitMate Setup")
     print("=" * 50)
@@ -236,6 +322,14 @@ def main() -> None:
     if not confirm_setup(selected_engine):
         print("Setup cancelled. You can run 'gitmate-setup' again anytime.")
         return
+    
+    # Download the selected model
+    try:
+        download_selected_model(selected_engine)
+    except Exception as e:
+        print(f"\n❌ Setup failed during model download: {e}")
+        print("You can run 'gitmate-setup' again to retry.")
+        sys.exit(1)
     
     # Update configuration
     update_config(selected_engine)

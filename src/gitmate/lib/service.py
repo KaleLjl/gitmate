@@ -1,7 +1,7 @@
 """
 GitMate Service - Core pipeline logic for processing git-related messages.
 """
-from gitmate.config import PROMPTS_DIR, MLX_MODEL, TRANSFORMERS_MODEL
+from gitmate.config import PROMPTS_DIR, MLX_MODEL_DIR, TRANSFORMERS_MODEL_DIR
 from gitmate.lib.git_context import get_git_context
 from gitmate.lib.user_config import load_or_create_user_config
 from gitmate.lib.history import save_conversation, update_conversation_with_ai_response
@@ -55,9 +55,24 @@ class GitMateService:
     def _ensure_model_loaded(self):
         """Load model and tokenizer if not already loaded."""
         if not self._model_loaded:
+            # Determine model path based on inference engine
+            if self.inference_engine == 'mlx':
+                model_path = MLX_MODEL_DIR
+            elif self.inference_engine == 'transformers':
+                model_path = TRANSFORMERS_MODEL_DIR
+            else:
+                raise ValueError(f"Unknown inference engine: {self.inference_engine}")
+            
+            # Check if model exists locally
+            if not model_path.exists():
+                raise RuntimeError(
+                    f"No {self.inference_engine} model found at {model_path}. "
+                    f"Please run 'gitmate-setup' to download and configure a model."
+                )
+            
             if self.inference_engine == 'mlx':
                 from mlx_lm import load
-                self.model, self.tokenizer = load(MLX_MODEL)
+                self.model, self.tokenizer = load(str(model_path))
             elif self.inference_engine == 'transformers':
                 import torch
                 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -65,13 +80,13 @@ class GitMateService:
                 # Auto-detect device (GPU if available, otherwise CPU)
                 device = "cuda" if torch.cuda.is_available() else "cpu"
                 
-                # Load the model and tokenizer
+                # Load the model and tokenizer from local path
                 self.model = AutoModelForCausalLM.from_pretrained(
-                    TRANSFORMERS_MODEL,
+                    str(model_path),
                     dtype=torch.float16 if device == "cuda" else torch.float32,
                     device_map="auto" if device == "cuda" else None
                 )
-                self.tokenizer = AutoTokenizer.from_pretrained(TRANSFORMERS_MODEL)
+                self.tokenizer = AutoTokenizer.from_pretrained(str(model_path))
                 
                 # Move model to device if not using device_map
                 if device == "cpu":
