@@ -10,14 +10,9 @@ from gitmate.lib.anwser import (
     create_conversations_dir,
     save_conversation,
     update_conversation_with_ai_response,
-    get_mlx_ai_response,
-    get_transformers_ai_response
+    get_ai_response
 )
 
-def get_prompt_path(prompt_filename):
-    """Get the full path for a prompt file."""
-    return PROMPTS_DIR / prompt_filename
-    
 def main():
     # Configurable prompt selection - change this to select different prompts
     SELECTED_PROMPT = "general_prompt.md"
@@ -46,7 +41,7 @@ def main():
         git_context_str = ""
 
     # Read system prompt with validation
-    prompt_path = get_prompt_path(SELECTED_PROMPT)
+    prompt_path = PROMPTS_DIR / SELECTED_PROMPT
     try:
         system_prompt = prompt_path.read_text(encoding="utf-8")
     except FileNotFoundError:
@@ -62,10 +57,7 @@ def main():
     filepath = save_conversation(message, conversations_dir)
     
     # Get AI response based on selected inference engine
-    if inference_engine == 'transformers':
-        result = get_transformers_ai_response(message, git_context_str, system_prompt)
-    else:
-        result = get_mlx_ai_response(message, git_context_str, system_prompt)
+    result = get_ai_response(inference_engine, message, git_context_str, system_prompt)
     
     print(result)
 

@@ -126,7 +126,7 @@ def get_mlx_ai_response(message: str, git_context_str: str, system_prompt: str) 
 
     # Post-process: normalize output (commit message + URL placeholders)
     try:
-        from gitmate.postprocess import normalize_output, enforce_policies
+        from gitmate.lib.postprocess import normalize_output, enforce_policies
         result = normalize_output(result)
         # Enforce deterministic, context-aware planners; returns a single code block
         result = enforce_policies(message, git_context_str, result)
@@ -210,4 +210,22 @@ def get_transformers_ai_response(message: str, git_context_str: str, system_prom
         pass
     
     return result
+
+
+# Create a registry of inference engines
+INFERENCE_ENGINES = {
+    'mlx': get_mlx_ai_response,
+    'transformers': get_transformers_ai_response,
+    # Future engines can be easily added here
+}
+
+def get_ai_response(inference_engine, message, git_context_str, system_prompt):
+    """Get AI response using the specified inference engine."""
+    if inference_engine not in INFERENCE_ENGINES:
+        # Fallback to default engine if specified engine is not found
+        print(f"Warning: Unknown inference engine '{inference_engine}', falling back to 'mlx'")
+        inference_engine = 'mlx'
+    
+    ai_function = INFERENCE_ENGINES[inference_engine]
+    return ai_function(message, git_context_str, system_prompt)
 
