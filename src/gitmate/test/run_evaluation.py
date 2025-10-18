@@ -1,8 +1,7 @@
 """Evaluation pipeline for gitmate AI responses."""
 import yaml
 from pathlib import Path
-from gitmate.anwser import get_ai_response
-from gitmate.config import PROMPTS_DIR
+from gitmate.lib.service import GitMateService
 from gitmate.test.report_generator import ReportGenerator
 
 
@@ -82,15 +81,6 @@ def run_evaluation():
     reports_dir = test_dir / "reports"
     reports_dir.mkdir(exist_ok=True)
     
-    # Load system prompt (using context-aware prompt)
-    prompt_path = PROMPTS_DIR / "context_aware_prompt.md"
-    
-    try:
-        system_prompt = prompt_path.read_text(encoding="utf-8")
-    except FileNotFoundError:
-        print(f"Error: System prompt not found at {prompt_path}")
-        return
-    
     # Load test data
     user_intents = load_user_intents()
     git_contexts = load_git_contexts()
@@ -102,6 +92,14 @@ def run_evaluation():
         print("Loaded expected outputs for evaluation")
     print(f"Running {len(user_intents) * len(git_contexts)} test combinations...\n")
     
+    # Initialize GitMate service
+    try:
+        service = GitMateService()
+        print("GitMate service initialized successfully.")
+    except Exception as e:
+        print(f"Error initializing GitMate service: {e}")
+        return
+    
     # Initialize report generator
     report_gen = ReportGenerator(reports_dir)
     
@@ -112,16 +110,20 @@ def run_evaluation():
         for context_name, context_data in git_contexts.items():
             print(f"  - {context_name}")
             
-            # Format git context as YAML string
-            git_context_str = format_git_context(context_data)
-            
             try:
-                # Get AI response
-                ai_response = get_ai_response(
-                    message=user_intent,
-                    git_context_str=git_context_str,
-                    system_prompt=system_prompt
-                )
+                # For testing, we need to create a custom service that uses the test context
+                # We'll create a temporary service instance and override the git context
+                test_service = GitMateService()
+                
+                # Override the git context method to return our test context
+                def get_test_git_context():
+                    return format_git_context(context_data)
+                
+                # Replace the git context method
+                test_service._get_git_context_str = get_test_git_context
+                
+                # Get AI response using the test service
+                ai_response = test_service.process_message(user_intent)
                 
                 # Get expected output if available
                 expected = None
