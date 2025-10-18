@@ -5,13 +5,14 @@ from gitmate.lib.git_probes import get_git_context
 from gitmate.config import PROMPTS_DIR
 # Import user configuration loader
 from gitmate.lib.user_config import load_or_create_user_config
-# Import model and conversation management functions
-from gitmate.lib.anwser import (
+# Import conversation management functions
+from gitmate.lib.history import (
     create_conversations_dir,
     save_conversation,
-    update_conversation_with_ai_response,
-    get_ai_response
+    update_conversation_with_ai_response
 )
+# Import AI response generation function
+from gitmate.lib.anwser import get_ai_response
 
 def main():
     # Configurable prompt selection - change this to select different prompts
