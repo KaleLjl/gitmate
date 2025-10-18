@@ -1,6 +1,7 @@
 """
 GitMate Service - Core pipeline logic for processing git-related messages.
 """
+import yaml
 from gitmate.config import PROMPTS_DIR, MLX_MODEL_DIR, TRANSFORMERS_MODEL_DIR
 from gitmate.lib.git_context import get_git_context
 from gitmate.lib.user_config import load_or_create_user_config
@@ -51,6 +52,32 @@ class GitMateService:
         if self.git_context_enabled:
             return get_git_context()
         return ""
+    
+    def _validate_git_repository(self, message: str) -> str:
+        """
+        Check if the current directory is a git repository.
+        Returns validation message if not a repo, None if valid.
+        
+        Args:
+            message: The user's message (unused, kept for interface consistency)
+            
+        Returns:
+            str: Validation error message or None if valid
+        """
+        # Get git context and check if repository exists
+        git_context_str = self._get_git_context_str()
+        if not git_context_str:  # If git context is disabled, skip validation
+            return None
+            
+        try:
+            git_context = yaml.safe_load(git_context_str) or {}
+            if not git_context.get("is_repo", False):
+                return "please initialize the repo with: git init"
+        except Exception:
+            # If there's an error parsing git context, skip validation
+            return None
+            
+        return None
     
     def _ensure_model_loaded(self):
         """Load model and tokenizer if not already loaded."""
@@ -182,6 +209,11 @@ class GitMateService:
         Returns:
             The processed AI response as a string
         """
+        # Validate git repository initialization
+        validation_error = self._validate_git_repository(message)
+        if validation_error:
+            return validation_error
+        
         # Ensure model is loaded (will only load once)
         self._ensure_model_loaded()
         
