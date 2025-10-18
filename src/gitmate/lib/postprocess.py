@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from typing import List, Optional
 import yaml
 
-
 # Case-insensitive pattern to find `git commit -m <anything>` and normalize the message
 _COMMIT_RE = re.compile(r"(?i)(^|\s)(git\s+commit\s+-m)\s+(\"[^\"]*\"|'[^']*'|\S+)")
 

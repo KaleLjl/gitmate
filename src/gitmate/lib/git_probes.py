@@ -1,4 +1,4 @@
-import os
+
 from typing import Iterable, Optional, Tuple
 import yaml
 from dulwich.errors import NotGitRepository
@@ -43,7 +43,7 @@ def describe_repo() -> str:
 
     repo_status = status(repo_path)
     staged_count = sum(len(files) for files in repo_status.staged.values())
-    unstaged_count = len(repo_status.unstaged)
+    unstaged_count = len(repo_status.unstaged) + len(repo_status.untracked)
     has_uncommitted = bool(
         staged_count or unstaged_count or repo_status.untracked
     )
@@ -88,31 +88,26 @@ def describe_repo() -> str:
 def get_git_context() -> str:
     """
     Get the current git repository context as a formatted YAML string.
+    Also saves the context to .gitmate/repo_status.yaml for caching.
     Uses the current working directory to locate the git repository.
     """
+    from gitmate.config import DEFAULT_REPO_STATUS_PATH
+    
     yaml_content = describe_repo()
     git_context = yaml.safe_load(yaml_content) or {}
+    
+    # Save to .gitmate/repo_status.yaml for caching
+    DEFAULT_REPO_STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with DEFAULT_REPO_STATUS_PATH.open("w", encoding="utf-8") as handle:
+        handle.write(yaml_content)
+    
+    # Return formatted string
     git_context_str = yaml.dump(
         git_context, 
         default_flow_style=False, 
         allow_unicode=True, 
         sort_keys=False
     ).strip() or "No git context available."
+    
     return git_context_str
 
-
-def save_repo_description(output_path: str = "repo_status.yaml") -> str:
-    """
-    Write the repository description to a YAML file and return the file path.
-    Uses the current working directory to locate the git repository.
-    """
-    yaml_content = describe_repo()
-    output = Path(output_path)
-    output.parent.mkdir(parents=True, exist_ok=True)
-    with output.open("w", encoding="utf-8") as handle:
-        handle.write(yaml_content)
-    return str(output)
-
-
-if __name__ == "__main__":
-    save_repo_description()
