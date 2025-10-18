@@ -2,7 +2,7 @@
 GitMate Service - Core pipeline logic for processing git-related messages.
 """
 from gitmate.config import PROMPTS_DIR, MLX_MODEL, TRANSFORMERS_MODEL
-from gitmate.lib.git_probes import get_git_context
+from gitmate.lib.git_context import get_git_context
 from gitmate.lib.user_config import load_or_create_user_config
 from gitmate.lib.history import save_conversation, update_conversation_with_ai_response
 from gitmate.lib.postprocess import normalize_output, enforce_policies
