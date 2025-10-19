@@ -10,15 +10,15 @@ def get_test_dir():
     return Path(__file__).parent
 
 
-def load_user_intents():
-    """Load all user intents from user_intents.yaml."""
+def load_user_messages():
+    """Load all user messages from user_intents.yaml."""
     test_dir = get_test_dir()
     intents_file = test_dir / "user_intents.yaml"
     
     with open(intents_file, 'r', encoding='utf-8') as f:
-        intents = yaml.safe_load(f)
+        messages = yaml.safe_load(f)
     
-    return intents if intents else []
+    return messages if messages else []
 
 
 def load_git_contexts():
@@ -82,31 +82,24 @@ def run_evaluation():
     reports_dir.mkdir(exist_ok=True)
     
     # Load test data
-    user_intents = load_user_intents()
+    user_messages = load_user_messages()
     git_contexts = load_git_contexts()
     expected_outputs = load_expected_outputs()
     
-    print(f"Loaded {len(user_intents)} user intents")
+    print(f"Loaded {len(user_messages)} user messages")
     print(f"Loaded {len(git_contexts)} git contexts")
     if expected_outputs:
         print("Loaded expected outputs for evaluation")
-    print(f"Running {len(user_intents) * len(git_contexts)} test combinations...")
+    print(f"Running {len(user_messages) * len(git_contexts)} test combinations...")
     print("Testing complete pipeline: AI Intent Detection → Post-Processor → Git Command\n")
     
-    # Initialize GitMate service
-    try:
-        service = GitMateService()
-        print("GitMate service initialized successfully.")
-    except Exception as e:
-        print(f"Error initializing GitMate service: {e}")
-        return
     
     # Initialize report generator
     report_gen = ReportGenerator(reports_dir)
     
     # Run evaluation for all combinations
-    for user_intent in user_intents:
-        print(f"Testing: {user_intent}")
+    for user_message in user_messages:
+        print(f"Testing: {user_message}")
         
         for context_name, context_data in git_contexts.items():
             print(f"  - {context_name}")
@@ -128,8 +121,8 @@ def run_evaluation():
                 
                 try:
                     # Get AI response using the test service (with real AI intent detection)
-                    print(f"    Running AI intent detection for: '{user_intent}'")
-                    ai_response = test_service.process_message(user_intent)
+                    print(f"    Running AI intent detection for: '{user_message}'")
+                    ai_response = test_service.process_message(user_message)
                     print(f"    Final output: {ai_response}")
                 finally:
                     # Restore the original function
@@ -138,9 +131,9 @@ def run_evaluation():
                 # Get expected output if available
                 expected = None
                 is_correct = None
-                if expected_outputs and user_intent in expected_outputs:
-                    if context_name in expected_outputs[user_intent]:
-                        expected_data = expected_outputs[user_intent][context_name]
+                if expected_outputs and user_message in expected_outputs:
+                    if context_name in expected_outputs[user_message]:
+                        expected_data = expected_outputs[user_message][context_name]
                         expected = expected_data.get('output', '')
                         
                         # Compare normalized outputs
@@ -151,7 +144,7 @@ def run_evaluation():
                 
                 # Record result with evaluation
                 report_gen.add_result(
-                    user_intent=user_intent,
+                    user_message=user_message,
                     git_context_name=context_name,
                     ai_response=ai_response,
                     expected_output=expected,
@@ -162,7 +155,7 @@ def run_evaluation():
                 print(f"    ERROR: {e}")
                 # Record failed result
                 report_gen.add_result(
-                    user_intent=user_intent,
+                    user_message=user_message,
                     git_context_name=context_name,
                     ai_response=f"ERROR: {str(e)}",
                     expected_output=None,

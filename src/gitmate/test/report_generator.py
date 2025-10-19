@@ -23,7 +23,7 @@ class ReportGenerator:
     
     def add_result(
         self,
-        user_intent: str,
+        user_message: str,
         git_context_name: str,
         ai_response: str,
         expected_output: str = None,
@@ -33,14 +33,14 @@ class ReportGenerator:
         Add a test result with optional evaluation.
         
         Args:
-            user_intent: The user's natural language request
+            user_message: The user's natural language request
             git_context_name: Name of the git context scenario
             ai_response: The AI's response
             expected_output: The expected output (if available)
             is_correct: Whether the AI response matches expected (if evaluated)
         """
         result = {
-            'user_intent': user_intent,
+            'user_message': user_message,
             'git_context_name': git_context_name,
             'ai_response': ai_response,
         }
@@ -53,14 +53,14 @@ class ReportGenerator:
         self.results.append(result)
     
     def _organize_by_intent(self) -> List[Dict[str, Any]]:
-        """Organize results by user intent."""
+        """Organize results by user message."""
         intent_map = {}
         
         for result in self.results:
-            intent = result['user_intent']
-            if intent not in intent_map:
-                intent_map[intent] = {
-                    'user_intent': intent,
+            message = result['user_message']
+            if message not in intent_map:
+                intent_map[message] = {
+                    'user_message': message,
                     'scenarios': []
                 }
             
@@ -74,7 +74,7 @@ class ReportGenerator:
                 scenario['expected_output'] = result['expected_output']
                 scenario['is_correct'] = result['is_correct']
             
-            intent_map[intent]['scenarios'].append(scenario)
+            intent_map[message]['scenarios'].append(scenario)
         
         return list(intent_map.values())
     
@@ -92,20 +92,20 @@ class ReportGenerator:
         # Overall accuracy
         accuracy = (correct / evaluated) * 100 if evaluated > 0 else 0
         
-        # Per-intent accuracy
-        intent_stats = {}
+        # Per-message accuracy
+        message_stats = {}
         for result in self.results:
             if result.get('is_correct') is not None:
-                intent = result['user_intent']
-                if intent not in intent_stats:
-                    intent_stats[intent] = {'correct': 0, 'total': 0}
-                intent_stats[intent]['total'] += 1
+                message = result['user_message']
+                if message not in message_stats:
+                    message_stats[message] = {'correct': 0, 'total': 0}
+                message_stats[message]['total'] += 1
                 if result['is_correct']:
-                    intent_stats[intent]['correct'] += 1
+                    message_stats[message]['correct'] += 1
         
-        intent_accuracy = {
-            intent: round((data['correct'] / data['total']) * 100, 1)
-            for intent, data in intent_stats.items()
+        message_accuracy = {
+            message: round((data['correct'] / data['total']) * 100, 1)
+            for message, data in message_stats.items()
         }
         
         # Per-context accuracy
@@ -127,7 +127,7 @@ class ReportGenerator:
         # Find problematic combinations (failures)
         failures = [
             {
-                'user_intent': r['user_intent'],
+                'user_message': r['user_message'],
                 'git_context': r['git_context_name'],
             }
             for r in self.results
@@ -142,7 +142,7 @@ class ReportGenerator:
                 'incorrect': incorrect,
                 'accuracy_percent': round(accuracy, 2)
             },
-            'per_intent_accuracy': intent_accuracy,
+            'per_message_accuracy': message_accuracy,
             'per_context_accuracy': context_accuracy,
             'failures_count': len(failures),
             'failed_combinations': failures[:20]  # Show top 20 failures
