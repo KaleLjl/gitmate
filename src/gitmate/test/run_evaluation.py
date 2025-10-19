@@ -95,13 +95,13 @@ def run_evaluation():
     # Run evaluation for all combinations
     for user_message in user_messages:
         print(f"Testing: {user_message}")
-        
+        # Create a test service instance
+        test_service = GitMateService()
         for context_name, context_data in git_contexts.items():
             print(f"  - {context_name}")
             
             try:
-                # Create a test service instance
-                test_service = GitMateService()
+           
                 
                 # For testing, we only mock the git context, not the AI response
                 # This allows us to test the complete pipeline: AI intent detection + post-processing

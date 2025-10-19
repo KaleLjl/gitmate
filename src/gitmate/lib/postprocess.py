@@ -79,10 +79,11 @@ class RuleBasedPostProcessor:
         if not git_context.get("has_uncommitted", False):
             return "No changes to commit"
         
-        if git_context.get("staged_count", 0) > 0:
-            return "git commit -m 'Update'"
-        else:
+        # Check if there are unstaged files that need to be added
+        if git_context.get("unstaged_count", 0) > 0:
             return "git add . && git commit -m 'Update'"
+        else:
+            return "git commit -m 'Update'"
     
     def _handle_push(self, git_context: Optional[Dict]) -> str:
         """Handle push intent with context awareness."""
@@ -95,6 +96,14 @@ class RuleBasedPostProcessor:
         if not git_context.get("remote_exists", False):
             return "No remote repository configured. Use 'git remote add origin <url>' first"
         
+        # Handle detached HEAD first
+        if git_context.get("is_detached", False):
+            if git_context.get("upstream_set", False):
+                return "git push"
+            else:
+                return "git switch main && git push -u origin main"
+        
+        # Handle normal branch
         if git_context.get("upstream_set", False):
             return "git push"
         else:

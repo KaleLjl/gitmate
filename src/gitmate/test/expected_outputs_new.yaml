@@ -81,12 +81,12 @@
     reason: "No remote repository configured"
 
   normal_noupstream_clean:
-    output: "git push -u origin main"
+    output: "git push -u origin feature-branch"
     reason: "Remote exists but upstream not set, need to set upstream"
 
   detached_remote_clean:
-    output: "git push"
-    reason: "Detached HEAD but can still push"
+    output: "git switch main && git push -u origin main"
+    reason: "Detached HEAD with no upstream, switch to branch first then push"
 
   none:
     output: "Not a Git repository. Use 'git init' first."
@@ -319,43 +319,43 @@
 
 "switch to main branch":
   normal_remote_clean:
-    output: "git checkout main"
+    output: "git switch main"
     reason: "Switch to main branch"
 
   normal_remote_unstaged:
-    output: "git checkout main"
+    output: "git switch main"
     reason: "Switch to main branch"
 
   normal_remote_staged:
-    output: "git checkout main"
+    output: "git switch main"
     reason: "Switch to main branch"
 
   normal_remote_partial:
-    output: "git checkout main"
+    output: "git switch main"
     reason: "Switch to main branch"
 
   normal_noremote_clean:
-    output: "git checkout main"
+    output: "git switch main"
     reason: "Switch to main branch"
 
   normal_noremote_unstaged:
-    output: "git checkout main"
+    output: "git switch main"
     reason: "Switch to main branch"
 
   normal_noremote_staged:
-    output: "git checkout main"
+    output: "git switch main"
     reason: "Switch to main branch"
 
   normal_noremote_partial:
-    output: "git checkout main"
+    output: "git switch main"
     reason: "Switch to main branch"
 
   normal_noupstream_clean:
-    output: "git checkout main"
+    output: "git switch main"
     reason: "Switch to main branch"
 
   detached_remote_clean:
-    output: "git checkout main"
+    output: "git switch main"
     reason: "Switch to main branch from detached HEAD"
 
   none:

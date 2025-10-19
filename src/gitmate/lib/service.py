@@ -72,7 +72,7 @@ class GitMateService:
         try:
             git_context = yaml.safe_load(get_git_context()) or {}
             if not git_context.get("is_repo", False):
-                return "please initialize the repo with: git init"
+                return "Not a Git repository. Use 'git init' first."
         except Exception:
             # If there's an error parsing git context, skip validation
             return None
