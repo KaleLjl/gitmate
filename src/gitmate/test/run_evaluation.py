@@ -37,9 +37,9 @@ def load_git_contexts():
 
 
 def load_expected_outputs():
-    """Load expected outputs from expected_outputs.yaml."""
+    """Load expected outputs from expected_outputs_new.yaml."""
     test_dir = get_test_dir()
-    expected_file = test_dir / "expected_outputs.yaml"
+    expected_file = test_dir / "expected_outputs_new.yaml"
     
     if not expected_file.exists():
         return None
@@ -90,7 +90,8 @@ def run_evaluation():
     print(f"Loaded {len(git_contexts)} git contexts")
     if expected_outputs:
         print("Loaded expected outputs for evaluation")
-    print(f"Running {len(user_intents) * len(git_contexts)} test combinations...\n")
+    print(f"Running {len(user_intents) * len(git_contexts)} test combinations...")
+    print("Testing complete pipeline: AI Intent Detection → Post-Processor → Git Command\n")
     
     # Initialize GitMate service
     try:
@@ -111,19 +112,28 @@ def run_evaluation():
             print(f"  - {context_name}")
             
             try:
-                # For testing, we need to create a custom service that uses the test context
-                # We'll create a temporary service instance and override the git context
+                # Create a test service instance
                 test_service = GitMateService()
                 
-                # Override the git context method to return our test context
-                def get_test_git_context():
+                # For testing, we only mock the git context, not the AI response
+                # This allows us to test the complete pipeline: AI intent detection + post-processing
+                import gitmate.lib.service as service_module
+                original_get_git_context = service_module.get_git_context
+                
+                def mock_get_git_context():
                     return format_git_context(context_data)
                 
-                # Replace the git context method
-                test_service._get_git_context_str = get_test_git_context
+                # Replace only the git context function temporarily
+                service_module.get_git_context = mock_get_git_context
                 
-                # Get AI response using the test service
-                ai_response = test_service.process_message(user_intent)
+                try:
+                    # Get AI response using the test service (with real AI intent detection)
+                    print(f"    Running AI intent detection for: '{user_intent}'")
+                    ai_response = test_service.process_message(user_intent)
+                    print(f"    Final output: {ai_response}")
+                finally:
+                    # Restore the original function
+                    service_module.get_git_context = original_get_git_context
                 
                 # Get expected output if available
                 expected = None
