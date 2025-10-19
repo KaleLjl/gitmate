@@ -6,7 +6,6 @@ from gitmate.config import PROMPTS_DIR, MLX_MODEL_DIR, TRANSFORMERS_MODEL_DIR
 from gitmate.lib.git_context import get_git_context
 from gitmate.lib.user_config import load_or_create_user_config
 from gitmate.lib.history import save_conversation, update_conversation_with_ai_response
-from gitmate.lib.postprocess import normalize_output, enforce_policies
 
 
 class GitMateService:
@@ -129,7 +128,6 @@ class GitMateService:
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": message}
         ]
-        print (messages) # for debug 
         formatted_prompt = self.tokenizer.apply_chat_template(
             messages, add_generation_prompt=True
         )
