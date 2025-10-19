@@ -2,6 +2,7 @@
 GitMate Service - Core pipeline logic for processing git-related messages.
 """
 import yaml
+from pathlib import Path
 from gitmate.config import PROMPTS_DIR, MLX_MODEL_DIR, TRANSFORMERS_MODEL_DIR
 from gitmate.lib.git_context import get_git_context
 from gitmate.lib.user_config import load_or_create_user_config
@@ -34,8 +35,20 @@ class GitMateService:
         self._model_loaded = False
     
     def _load_system_prompt(self) -> str:
-        """Load the system prompt with validation."""
+        """Load the system prompt with smart regeneration from YAML."""
         prompt_path = PROMPTS_DIR / self.selected_prompt
+        yaml_path = Path(__file__).parent / "intent_definitions.yaml"
+        
+        # Check if YAML is newer than prompt or prompt doesn't exist
+        if (not prompt_path.exists() or 
+            yaml_path.stat().st_mtime > prompt_path.stat().st_mtime):
+            
+            # Regenerate prompt from YAML
+            from gitmate.lib.intent_utils import generate_prompt_content
+            content = generate_prompt_content()
+            prompt_path.write_text(content, encoding="utf-8")
+        
+        # Load the prompt (either existing or newly generated)
         try:
             return prompt_path.read_text(encoding="utf-8")
         except FileNotFoundError:

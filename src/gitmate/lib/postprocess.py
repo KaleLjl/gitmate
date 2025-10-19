@@ -3,6 +3,7 @@ GitMate Post-Processor - Context-aware command generation based on AI intent det
 """
 import yaml
 from typing import Dict, Optional
+from gitmate.lib.intent_utils import validate_intent, get_intent_names
 
 
 class RuleBasedPostProcessor:
@@ -21,6 +22,7 @@ class RuleBasedPostProcessor:
             git_context_enabled: Whether to use Git context for command generation
         """
         self.git_context_enabled = git_context_enabled
+        self.supported_intents = get_intent_names()
     
     def process(self, intent: str, git_context: Optional[Dict] = None) -> str:
         """
@@ -38,7 +40,7 @@ class RuleBasedPostProcessor:
             return "I can only help with Git operations. Please ask me about Git commands."
         
         # Handle unknown intents
-        if intent not in self._get_supported_intents():
+        if not validate_intent(intent):
             return f"Unknown intent: {intent}"
         
         # Generate command based on intent
@@ -65,9 +67,6 @@ class RuleBasedPostProcessor:
         else:
             return f"Unhandled intent: {intent}"
     
-    def _get_supported_intents(self) -> list:
-        """Get list of supported intents."""
-        return ["commit", "push", "init", "status", "branch", "add", "log", "switch", "pull", "remote", "N/A"]
     
     def _handle_commit(self, git_context: Optional[Dict]) -> str:
         """Handle commit intent with context awareness."""

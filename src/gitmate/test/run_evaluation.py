@@ -11,14 +11,9 @@ def get_test_dir():
 
 
 def load_user_messages():
-    """Load all user messages from user_intents.yaml."""
-    test_dir = get_test_dir()
-    intents_file = test_dir / "user_intents.yaml"
-    
-    with open(intents_file, 'r', encoding='utf-8') as f:
-        messages = yaml.safe_load(f)
-    
-    return messages if messages else []
+    """Load all user messages from centralized intent definitions."""
+    from gitmate.lib.intent_utils import get_all_examples
+    return get_all_examples()
 
 
 def load_git_contexts():

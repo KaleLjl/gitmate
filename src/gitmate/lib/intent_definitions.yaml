@@ -1,0 +1,103 @@
+# GitMate Intent Definitions
+# Centralized source of truth for all user intents, descriptions, and examples
+# Used by prompts, postprocessor, and test evaluation
+
+intents:
+  commit:
+    description: "User wants to save changes"
+    examples:
+      - "commit my changes"
+      - "save my work"
+      - "create a commit"
+      - "save changes"
+      - "commit the files"
+      
+  push:
+    description: "User wants to upload to remote"
+    examples:
+      - "push to remote"
+      - "upload changes"
+      - "send to github"
+      - "push changes"
+      - "upload to remote"
+      
+  init:
+    description: "User wants to start a repository"
+    examples:
+      - "initialize repo"
+      - "start git repo"
+      - "create repository"
+      - "init git"
+      - "initialize repository"
+      
+  status:
+    description: "User wants to see current state"
+    examples:
+      - "show status"
+      - "what's changed"
+      - "check status"
+      - "show me the status"
+      - "git status"
+      
+  branch:
+    description: "User wants to work with branches"
+    examples:
+      - "create branch"
+      - "new feature branch"
+      - "make a branch"
+      - "create a new branch"
+      - "branch feature"
+      
+  add:
+    description: "User wants to stage files"
+    examples:
+      - "add files"
+      - "stage changes"
+      - "include files"
+      - "add all files"
+      - "stage files"
+      
+  log:
+    description: "User wants to see history"
+    examples:
+      - "show history"
+      - "commit log"
+      - "see commits"
+      - "show commit history"
+      - "git log"
+      
+  switch:
+    description: "User wants to switch context"
+    examples:
+      - "switch branch"
+      - "go to main"
+      - "change branch"
+      - "switch to main"
+      - "checkout branch"
+      
+  pull:
+    description: "User wants to get remote changes"
+    examples:
+      - "pull changes"
+      - "get latest"
+      - "sync with remote"
+      - "pull latest changes"
+      - "update from remote"
+      
+  remote:
+    description: "User wants to see remote info"
+    examples:
+      - "show remotes"
+      - "list remotes"
+      - "check remotes"
+      - "show remote info"
+      - "remote repositories"
+      
+  N/A:
+    description: "User input is irrelevant to Git operations"
+    examples:
+      - "what's the weather"
+      - "hello"
+      - "how are you"
+      - "good morning"
+      - "help me with python"
