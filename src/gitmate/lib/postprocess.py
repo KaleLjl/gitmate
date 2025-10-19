@@ -106,6 +106,19 @@ def _bash_block(lines: List[str]) -> str:
 # Intent planners
 # ------------------------------
 
+_KNOWN_INTENTS = {
+    "push to remote",
+    "pull latest changes",
+    "show remotes",
+    "add all files",
+    "commit my changes",
+    "switch to main branch",
+    "create a new branch called feature",
+    "initialize a repo",
+    "show me the status",
+    "show commit history",
+}
+
 def plan_commit(ctx: GitContext) -> List[str]:
     if not ctx.is_repo:
         return ["git init", "N/A"]
@@ -198,20 +211,6 @@ def plan_show_status(ctx: GitContext) -> List[str]:
 
 def plan_show_log(ctx: GitContext) -> List[str]:
     return ["git log --oneline"] if ctx.is_repo else ["N/A"]
-
-
-_KNOWN_INTENTS = {
-    "push to remote",
-    "pull latest changes",
-    "show remotes",
-    "add all files",
-    "commit my changes",
-    "switch to main branch",
-    "create a new branch called feature",
-    "initialize a repo",
-    "show me the status",
-    "show commit history",
-}
 
 
 def detect_intent(user_text: str, llm_output: Optional[str]) -> Optional[str]:
