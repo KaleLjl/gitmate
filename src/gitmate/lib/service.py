@@ -6,6 +6,7 @@ from gitmate.config import PROMPTS_DIR, MLX_MODEL_DIR, TRANSFORMERS_MODEL_DIR
 from gitmate.lib.git_context import get_git_context
 from gitmate.lib.user_config import load_or_create_user_config
 from gitmate.lib.history import save_conversation, update_conversation_with_ai_response
+from gitmate.lib.postprocess import process_intent
 
 
 class GitMateService:
@@ -42,7 +43,6 @@ class GitMateService:
                 f"Prompt file '{self.selected_prompt}' not found. "
                 f"Available prompts: {list(PROMPTS_DIR.glob('*.md'))}"
             )
-    
     
     def _validate_git_repository(self, message: str) -> str:
         """
@@ -189,20 +189,19 @@ class GitMateService:
         
         # Save user message to conversation history
         filepath = save_conversation(message)
-
         
-        # Get AI response using cached model
-        result = self._get_ai_response_with_cached_model(
+        # Get AI response using cached model (should be intent like 'commit', 'push', etc.)
+        intent = self._get_ai_response_with_cached_model(
             message, self.system_prompt
         )
         
-        # Post-process the AI response
-        # try:
-        #     result = normalize_output(result)
-        #     result = enforce_policies(message, git_context_str, result)
-        # except Exception:
-        #     # If post-processing fails, use the raw result
-        #     pass
+        # Get Git context if enabled
+        git_context_str = None
+        if self.git_context_enabled:
+            git_context_str = get_git_context()
+        
+        # Post-process the intent to generate Git command
+        result = process_intent(intent.strip(), self.git_context_enabled, git_context_str)
         
         # Update conversation file with AI response
         if not update_conversation_with_ai_response(filepath, result):
