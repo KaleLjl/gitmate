@@ -1,12 +1,12 @@
 """
 GitMate Service - Core pipeline logic for processing git-related messages.
 """
-import yaml
+from pathlib import Path
 from gitmate.config import PROMPTS_DIR, MLX_MODEL_DIR, TRANSFORMERS_MODEL_DIR
 from gitmate.lib.git_context import get_git_context
 from gitmate.lib.user_config import load_or_create_user_config
 from gitmate.lib.history import save_conversation, update_conversation_with_ai_response
-from gitmate.lib.postprocess import normalize_output, enforce_policies
+from gitmate.lib.postprocess import process_intent
 
 
 class GitMateService:
@@ -22,11 +22,8 @@ class GitMateService:
         # Load user configuration once at initialization
         self.git_context_enabled, self.inference_engine = load_or_create_user_config()
         
-        # Select prompt based on git context setting
-        if self.git_context_enabled:
-            self.selected_prompt = "context_aware_prompt.md"
-        else:
-            self.selected_prompt = "general_prompt.md"
+        # Use single prompt file
+        self.selected_prompt = "intent_detection.md"
         
         # Load system prompt
         self.system_prompt = self._load_system_prompt()
@@ -37,8 +34,20 @@ class GitMateService:
         self._model_loaded = False
     
     def _load_system_prompt(self) -> str:
-        """Load the system prompt with validation."""
+        """Load the system prompt with smart regeneration from YAML."""
         prompt_path = PROMPTS_DIR / self.selected_prompt
+        yaml_path = Path(__file__).parent / "intent_definitions.yaml"
+        
+        # Check if YAML is newer than prompt or prompt doesn't exist
+        if (not prompt_path.exists() or 
+            yaml_path.stat().st_mtime > prompt_path.stat().st_mtime):
+            
+            # Regenerate prompt from YAML
+            from gitmate.lib.intent_utils import generate_prompt_content
+            content = generate_prompt_content()
+            prompt_path.write_text(content, encoding="utf-8")
+        
+        # Load the prompt (either existing or newly generated)
         try:
             return prompt_path.read_text(encoding="utf-8")
         except FileNotFoundError:
@@ -46,12 +55,6 @@ class GitMateService:
                 f"Prompt file '{self.selected_prompt}' not found. "
                 f"Available prompts: {list(PROMPTS_DIR.glob('*.md'))}"
             )
-    
-    def _get_git_context_str(self) -> str:
-        """Get git context string if enabled, empty string otherwise."""
-        if self.git_context_enabled:
-            return get_git_context()
-        return ""
     
     def _validate_git_repository(self, message: str) -> str:
         """
@@ -64,20 +67,15 @@ class GitMateService:
         Returns:
             str: Validation error message or None if valid
         """
-        # Get git context and check if repository exists
-        git_context_str = self._get_git_context_str()
-        if not git_context_str:  # If git context is disabled, skip validation
-            return None
-            
+        # Simple check without calling get_git_context() to avoid double execution
         try:
-            git_context = yaml.safe_load(git_context_str) or {}
-            if not git_context.get("is_repo", False):
-                return "please initialize the repo with: git init"
+            from dulwich.repo import Repo
+            from pathlib import Path
+            repo = Repo(str(Path.cwd()))
+            repo.close()
+            return None  # Valid repo
         except Exception:
-            # If there's an error parsing git context, skip validation
-            return None
-            
-        return None
+            return "Not a Git repository. Use 'git init' first."
     
     def _ensure_model_loaded(self):
         """Load model and tokenizer if not already loaded."""
@@ -124,32 +122,23 @@ class GitMateService:
             
             self._model_loaded = True
     
-    def _get_ai_response_with_cached_model(self, message: str, git_context_str: str, system_prompt: str) -> str:
+    def _get_ai_response_with_cached_model(self, message: str, system_prompt: str) -> str:
         """Get AI response using the cached model and tokenizer."""
         if self.inference_engine == 'mlx':
-            return self._get_mlx_response(message, git_context_str, system_prompt)
+            return self._get_mlx_response(message, system_prompt)
         elif self.inference_engine == 'transformers':
-            return self._get_transformers_response(message, git_context_str, system_prompt)
+            return self._get_transformers_response(message, system_prompt)
         else:
             raise ValueError(f"Unknown inference engine: {self.inference_engine}")
     
-    def _get_mlx_response(self, message: str, git_context_str: str, system_prompt: str) -> str:
+    def _get_mlx_response(self, message: str, system_prompt: str) -> str:
         """Get AI response using cached MLX model."""
         from mlx_lm import generate
         
-        # Apply the prompt 
-        prompt = (
-            "User message: " + message
-            + "\n\n---\n\nGit Context (YAML):\n```yaml\n"
-            + git_context_str
-            + "\n```\n\nEnd of context."
-        )
-
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": prompt}
+            {"role": "user", "content": message}
         ]
-        
         formatted_prompt = self.tokenizer.apply_chat_template(
             messages, add_generation_prompt=True
         )
@@ -158,23 +147,15 @@ class GitMateService:
         
         return result
     
-    def _get_transformers_response(self, message: str, git_context_str: str, system_prompt: str) -> str:
+    def _get_transformers_response(self, message: str, system_prompt: str) -> str:
         """Get AI response using cached Transformers model."""
         import torch
         
-        # Apply the prompt 
-        prompt = (
-            "User message: " + message
-            + "\n\n---\n\nGit Context (YAML):\n```yaml\n"
-            + git_context_str
-            + "\n```\n\nEnd of context."
-        )
-
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": prompt}
+            {"role": "user", "content": message}
         ]
-        
+
         # Apply chat template
         formatted_prompt = self.tokenizer.apply_chat_template(
             messages, add_generation_prompt=True, tokenize=False
@@ -217,24 +198,21 @@ class GitMateService:
         # Ensure model is loaded (will only load once)
         self._ensure_model_loaded()
         
-        # Get git context
-        git_context_str = self._get_git_context_str()
-        
         # Save user message to conversation history
         filepath = save_conversation(message)
         
-        # Get AI response using cached model
-        result = self._get_ai_response_with_cached_model(
-            message, git_context_str, self.system_prompt
+        # Get AI response using cached model (should be intent like 'commit', 'push', etc.)
+        intent = self._get_ai_response_with_cached_model(
+            message, self.system_prompt
         )
         
-        # Post-process the AI response
-        try:
-            result = normalize_output(result)
-            result = enforce_policies(message, git_context_str, result)
-        except Exception:
-            # If post-processing fails, use the raw result
-            pass
+        # Get Git context if enabled
+        git_context_str = None
+        if self.git_context_enabled:
+            git_context_str = get_git_context()
+        
+        # Post-process the intent to generate Git command
+        result = process_intent(intent.strip(), self.git_context_enabled, git_context_str)
         
         # Update conversation file with AI response
         if not update_conversation_with_ai_response(filepath, result):
