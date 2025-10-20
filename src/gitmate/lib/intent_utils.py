@@ -46,6 +46,23 @@ def get_intent_mapping() -> Dict[str, str]:
             message_to_intent[example] = intent_name
     return message_to_intent
 
+def get_intent_expected_outputs(intent_name: str) -> Dict[str, Dict[str, str]]:
+    """Get expected outputs for a specific intent across all git contexts."""
+    intents = load_intents()
+    intent_data = intents['intents'].get(intent_name, {})
+    return intent_data.get('expected_outputs', {})
+
+def get_expected_output(intent_name: str, git_context: str) -> Dict[str, str]:
+    """Get expected output for a specific intent and git context."""
+    expected_outputs = get_intent_expected_outputs(intent_name)
+    return expected_outputs.get(git_context, {})
+
+def get_expected_output_by_message(user_message: str, git_context: str) -> Dict[str, str]:
+    """Get expected output for a user message by mapping to intent first."""
+    intent_mapping = get_intent_mapping()
+    intent = intent_mapping.get(user_message, 'unknown')
+    return get_expected_output(intent, git_context)
+
 def validate_intent(intent_name: str) -> bool:
     """Check if intent name is valid."""
     return intent_name in get_intent_names()

@@ -33,15 +33,25 @@ def load_git_contexts():
 
 
 def load_expected_outputs():
-    """Load expected outputs from expected_outputs_new.yaml."""
-    test_dir = get_test_dir()
-    expected_file = test_dir / "expected_outputs_new.yaml"
+    """Load expected outputs from intent_definitions.yaml (new structure)."""
+    from gitmate.lib.intent_utils import get_intent_expected_outputs, get_intent_mapping
     
-    if not expected_file.exists():
-        return None
+    # Get intent mapping and expected outputs
+    intent_mapping = get_intent_mapping()
+    intent_names = list(intent_mapping.values())
     
-    with open(expected_file, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
+    # Build expected outputs structure for backward compatibility
+    expected_outputs = {}
+    for intent_name in set(intent_names):
+        intent_outputs = get_intent_expected_outputs(intent_name)
+        if intent_outputs:
+            # Find a message that maps to this intent
+            for message, mapped_intent in intent_mapping.items():
+                if mapped_intent == intent_name:
+                    expected_outputs[message] = intent_outputs
+                    break
+    
+    return expected_outputs if expected_outputs else None
 
 
 def normalize_output(text):

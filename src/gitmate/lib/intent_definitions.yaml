@@ -1,87 +1,458 @@
 # GitMate Intent Definitions
-# Centralized source of truth for all user intents, descriptions, and examples
+# Centralized source of truth for all user intents, descriptions, examples, and expected outputs
 # Used by prompts, postprocessor, and test evaluation
 
 intents:
   commit:
-    description: "User wants to save changes"
+    description: User wants to save changes
     examples:
-      - "commit my changes"
-      - "save my work"
-      - "create a commit"
-      
+    - commit my changes
+    - save my work
+    - create a commit
+    expected_outputs:
+      normal_remote_clean:
+        output: No changes to commit
+        reason: No uncommitted changes exist
+      normal_remote_unstaged:
+        output: git add . && git commit -m 'Update'
+        reason: Stage unstaged files then commit
+      normal_remote_staged:
+        output: git commit -m 'Update'
+        reason: Files already staged, just commit
+      normal_remote_partial:
+        output: git add . && git commit -m 'Update'
+        reason: Stage remaining unstaged files, then commit all
+      normal_noremote_clean:
+        output: No changes to commit
+        reason: No uncommitted changes exist
+      normal_noremote_unstaged:
+        output: git add . && git commit -m 'Update'
+        reason: Stage and commit (remote not needed for commit intent)
+      normal_noremote_staged:
+        output: git commit -m 'Update'
+        reason: Files already staged, just commit
+      normal_noremote_partial:
+        output: git add . && git commit -m 'Update'
+        reason: Stage remaining unstaged files, then commit all
+      normal_noupstream_clean:
+        output: No changes to commit
+        reason: No uncommitted changes exist
+      detached_remote_clean:
+        output: No changes to commit
+        reason: No uncommitted changes exist
+      none:
+        output: Not a Git repository. Use 'git init' first.
+        reason: Repository not initialized
   push:
-    description: "User wants to upload to remote"
+    description: User wants to upload to remote
     examples:
-      - "push to remote"
-      - "upload changes"
-      - "send to github"
-      
+    - push to remote
+    - upload changes
+    - send to github
+    expected_outputs:
+      normal_remote_clean:
+        output: git push
+        reason: Clean working tree, upstream set, can push
+      normal_remote_unstaged:
+        output: git push
+        reason: Has changes but can still push
+      normal_remote_staged:
+        output: git push
+        reason: Has staged changes but can still push
+      normal_remote_partial:
+        output: git push
+        reason: Has partial changes but can still push
+      normal_noremote_clean:
+        output: No remote repository configured. Use 'git remote add origin <url>'
+          first
+        reason: No remote repository configured
+      normal_noremote_unstaged:
+        output: No remote repository configured. Use 'git remote add origin <url>'
+          first
+        reason: No remote repository configured
+      normal_noremote_staged:
+        output: No remote repository configured. Use 'git remote add origin <url>'
+          first
+        reason: No remote repository configured
+      normal_noremote_partial:
+        output: No remote repository configured. Use 'git remote add origin <url>'
+          first
+        reason: No remote repository configured
+      normal_noupstream_clean:
+        output: git push -u origin feature-branch
+        reason: Remote exists but upstream not set, need to set upstream
+      detached_remote_clean:
+        output: git switch main && git push -u origin main
+        reason: Detached HEAD with no upstream, switch to branch first then push
+      none:
+        output: Not a Git repository. Use 'git init' first.
+        reason: Repository not initialized
   init:
-    description: "User wants to start a repository"
+    description: User wants to start a repository
     examples:
-      - "initialize repo"
-      - "start git repo"
-      - "create repository"
-      
+    - initialize repo
+    - start git repo
+    - create repository
+    expected_outputs:
+      normal_remote_clean:
+        output: Repository already initialized
+        reason: Repository already exists
+      normal_remote_unstaged:
+        output: Repository already initialized
+        reason: Repository already exists
+      normal_remote_staged:
+        output: Repository already initialized
+        reason: Repository already exists
+      normal_remote_partial:
+        output: Repository already initialized
+        reason: Repository already exists
+      normal_noremote_clean:
+        output: Repository already initialized
+        reason: Repository already exists
+      normal_noremote_unstaged:
+        output: Repository already initialized
+        reason: Repository already exists
+      normal_noremote_staged:
+        output: Repository already initialized
+        reason: Repository already exists
+      normal_noremote_partial:
+        output: Repository already initialized
+        reason: Repository already exists
+      normal_noupstream_clean:
+        output: Repository already initialized
+        reason: Repository already exists
+      detached_remote_clean:
+        output: Repository already initialized
+        reason: Repository already exists
+      none:
+        output: git init
+        reason: Initialize new repository
   status:
-    description: "User wants to see current state"
+    description: User wants to see current state
     examples:
-      - "show status"
-      - "what's changed"
-      - "check status"
-      
+    - show status
+    - what's changed
+    - check status
+    expected_outputs:
+      normal_remote_clean:
+        output: git status
+        reason: Show current repository status
+      normal_remote_unstaged:
+        output: git status
+        reason: Show current repository status
+      normal_remote_staged:
+        output: git status
+        reason: Show current repository status
+      normal_remote_partial:
+        output: git status
+        reason: Show current repository status
+      normal_noremote_clean:
+        output: git status
+        reason: Show current repository status
+      normal_noremote_unstaged:
+        output: git status
+        reason: Show current repository status
+      normal_noremote_staged:
+        output: git status
+        reason: Show current repository status
+      normal_noremote_partial:
+        output: git status
+        reason: Show current repository status
+      normal_noupstream_clean:
+        output: git status
+        reason: Show current repository status
+      detached_remote_clean:
+        output: git status
+        reason: Show current repository status
+      none:
+        output: Not a Git repository. Use 'git init' first.
+        reason: Repository not initialized
   branch:
-    description: "User wants to work with branches"
+    description: User wants to work with branches
     examples:
-      - "create branch"
-      - "new feature branch"
-      - "make a branch"
-      
+    - create branch
+    - new feature branch
+    - make a branch
+    expected_outputs:
+      normal_remote_clean:
+        output: git branch feature-branch
+        reason: Create new branch from current branch
+      normal_remote_unstaged:
+        output: git branch feature-branch
+        reason: Create new branch from current branch
+      normal_remote_staged:
+        output: git branch feature-branch
+        reason: Create new branch from current branch
+      normal_remote_partial:
+        output: git branch feature-branch
+        reason: Create new branch from current branch
+      normal_noremote_clean:
+        output: git branch feature-branch
+        reason: Create new branch from current branch
+      normal_noremote_unstaged:
+        output: git branch feature-branch
+        reason: Create new branch from current branch
+      normal_noremote_staged:
+        output: git branch feature-branch
+        reason: Create new branch from current branch
+      normal_noremote_partial:
+        output: git branch feature-branch
+        reason: Create new branch from current branch
+      normal_noupstream_clean:
+        output: git branch feature-branch
+        reason: Create new branch from current branch
+      detached_remote_clean:
+        output: git checkout -b feature-branch
+        reason: In detached HEAD, create and checkout new branch
+      none:
+        output: Not a Git repository. Use 'git init' first.
+        reason: Repository not initialized
   add:
-    description: "User wants to stage files"
+    description: User wants to stage files
     examples:
-      - "add files"
-      - "stage changes"
-      - "include files"
-      
+    - add files
+    - stage changes
+    - include files
+    expected_outputs:
+      normal_remote_clean:
+        output: git add .
+        reason: Stage all files
+      normal_remote_unstaged:
+        output: git add .
+        reason: Stage all files
+      normal_remote_staged:
+        output: git add .
+        reason: Stage all files
+      normal_remote_partial:
+        output: git add .
+        reason: Stage all files
+      normal_noremote_clean:
+        output: git add .
+        reason: Stage all files
+      normal_noremote_unstaged:
+        output: git add .
+        reason: Stage all files
+      normal_noremote_staged:
+        output: git add .
+        reason: Stage all files
+      normal_noremote_partial:
+        output: git add .
+        reason: Stage all files
+      normal_noupstream_clean:
+        output: git add .
+        reason: Stage all files
+      detached_remote_clean:
+        output: git add .
+        reason: Stage all files
+      none:
+        output: Not a Git repository. Use 'git init' first.
+        reason: Repository not initialized
   log:
-    description: "User wants to see history"
+    description: User wants to see history
     examples:
-      - "show history"
-      - "commit log"
-      - "see commits"
-      
+    - show history
+    - commit log
+    - see commits
+    expected_outputs:
+      normal_remote_clean:
+        output: git log --oneline
+        reason: Show commit history in one line format
+      normal_remote_unstaged:
+        output: git log --oneline
+        reason: Show commit history in one line format
+      normal_remote_staged:
+        output: git log --oneline
+        reason: Show commit history in one line format
+      normal_remote_partial:
+        output: git log --oneline
+        reason: Show commit history in one line format
+      normal_noremote_clean:
+        output: git log --oneline
+        reason: Show commit history in one line format
+      normal_noremote_unstaged:
+        output: git log --oneline
+        reason: Show commit history in one line format
+      normal_noremote_staged:
+        output: git log --oneline
+        reason: Show commit history in one line format
+      normal_noremote_partial:
+        output: git log --oneline
+        reason: Show commit history in one line format
+      normal_noupstream_clean:
+        output: git log --oneline
+        reason: Show commit history in one line format
+      detached_remote_clean:
+        output: git log --oneline
+        reason: Show commit history in one line format
+      none:
+        output: Not a Git repository. Use 'git init' first.
+        reason: Repository not initialized
   switch:
-    description: "User wants to switch context"
+    description: User wants to switch context
     examples:
-      - "switch branch"
-      - "go to main"
-      - "change branch"
-      
+    - switch branch
+    - go to main
+    - change branch
+    expected_outputs:
+      normal_remote_clean:
+        output: git switch main
+        reason: Switch to main branch
+      normal_remote_unstaged:
+        output: git switch main
+        reason: Switch to main branch
+      normal_remote_staged:
+        output: git switch main
+        reason: Switch to main branch
+      normal_remote_partial:
+        output: git switch main
+        reason: Switch to main branch
+      normal_noremote_clean:
+        output: git switch main
+        reason: Switch to main branch
+      normal_noremote_unstaged:
+        output: git switch main
+        reason: Switch to main branch
+      normal_noremote_staged:
+        output: git switch main
+        reason: Switch to main branch
+      normal_noremote_partial:
+        output: git switch main
+        reason: Switch to main branch
+      normal_noupstream_clean:
+        output: git switch main
+        reason: Switch to main branch
+      detached_remote_clean:
+        output: git switch main
+        reason: Switch to main branch from detached HEAD
+      none:
+        output: Not a Git repository. Use 'git init' first.
+        reason: Repository not initialized
   pull:
-    description: "User wants to get remote changes"
+    description: User wants to get remote changes
     examples:
-      - "pull changes"
-      - "get latest"
-      - "sync with remote"
-      
+    - pull changes
+    - get latest
+    - sync with remote
+    expected_outputs:
+      normal_remote_clean:
+        output: git pull
+        reason: Pull latest changes from remote
+      normal_remote_unstaged:
+        output: git pull
+        reason: Pull latest changes from remote
+      normal_remote_staged:
+        output: git pull
+        reason: Pull latest changes from remote
+      normal_remote_partial:
+        output: git pull
+        reason: Pull latest changes from remote
+      normal_noremote_clean:
+        output: No remote repository configured. Use 'git remote add origin <url>'
+          first
+        reason: No remote repository configured
+      normal_noremote_unstaged:
+        output: No remote repository configured. Use 'git remote add origin <url>'
+          first
+        reason: No remote repository configured
+      normal_noremote_staged:
+        output: No remote repository configured. Use 'git remote add origin <url>'
+          first
+        reason: No remote repository configured
+      normal_noremote_partial:
+        output: No remote repository configured. Use 'git remote add origin <url>'
+          first
+        reason: No remote repository configured
+      normal_noupstream_clean:
+        output: git pull
+        reason: Pull latest changes from remote
+      detached_remote_clean:
+        output: git pull
+        reason: Pull latest changes from remote
+      none:
+        output: Not a Git repository. Use 'git init' first.
+        reason: Repository not initialized
   remote:
-    description: "User wants to see remote info"
+    description: User wants to see remote info
     examples:
-      - "show remotes"
-      - "list remotes"
-      - "check remotes"
-      
+    - show remotes
+    - list remotes
+    - check remotes
+    expected_outputs:
+      normal_remote_clean:
+        output: git remote -v
+        reason: Show remote repositories
+      normal_remote_unstaged:
+        output: git remote -v
+        reason: Show remote repositories
+      normal_remote_staged:
+        output: git remote -v
+        reason: Show remote repositories
+      normal_remote_partial:
+        output: git remote -v
+        reason: Show remote repositories
+      normal_noremote_clean:
+        output: git remote -v
+        reason: Show remote repositories (will be empty)
+      normal_noremote_unstaged:
+        output: git remote -v
+        reason: Show remote repositories (will be empty)
+      normal_noremote_staged:
+        output: git remote -v
+        reason: Show remote repositories (will be empty)
+      normal_noremote_partial:
+        output: git remote -v
+        reason: Show remote repositories (will be empty)
+      normal_noupstream_clean:
+        output: git remote -v
+        reason: Show remote repositories
+      detached_remote_clean:
+        output: git remote -v
+        reason: Show remote repositories
+      none:
+        output: Not a Git repository. Use 'git init' first.
+        reason: Repository not initialized
   merge:
-    description: "User wants to merge current branch into main"
+    description: User wants to merge current branch into main
     examples:
-      - "merge into main"
-      - "merge my branch"
-      - "merge to main"
-      
+    - merge into main
+    - merge my branch
+    - merge to main
+    expected_outputs:
+      normal_remote_clean:
+        output: git switch main && git merge feature-branch && git push
+        reason: Switch to main, merge current branch, and push to remote
+      normal_remote_unstaged:
+        output: Commit or stash changes first before merging
+        reason: Has uncommitted changes that need to be handled first
+      normal_remote_staged:
+        output: Commit or stash changes first before merging
+        reason: Has uncommitted changes that need to be handled first
+      normal_remote_partial:
+        output: Commit or stash changes first before merging
+        reason: Has uncommitted changes that need to be handled first
+      normal_noremote_clean:
+        output: git switch main && git merge feature-branch
+        reason: Switch to main and merge current branch (no remote to push to)
+      normal_noremote_unstaged:
+        output: Commit or stash changes first before merging
+        reason: Has uncommitted changes that need to be handled first
+      normal_noremote_staged:
+        output: Commit or stash changes first before merging
+        reason: Has uncommitted changes that need to be handled first
+      normal_noremote_partial:
+        output: Commit or stash changes first before merging
+        reason: Has uncommitted changes that need to be handled first
+      normal_noupstream_clean:
+        output: git switch main && git merge feature-branch && git push
+        reason: Switch to main, merge current branch, and push to remote
+      detached_remote_clean:
+        output: git switch main && git merge <detached-commit> && git push
+        reason: Switch to main, merge detached commit, and push to remote
+      none:
+        output: Not a Git repository. Use 'git init' first.
+        reason: Repository not initialized
   N/A:
-    description: "User input is irrelevant to Git operations"
+    description: User input is irrelevant to Git operations
     examples:
-      - "what's the weather"
-      - "hello"
+    - what's the weather
+    - hello
