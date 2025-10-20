@@ -93,6 +93,15 @@ intents:
       - "show remote info"
       - "remote repositories"
       
+  merge:
+    description: "User wants to merge current branch into main"
+    examples:
+      - "merge into main"
+      - "merge my branch"
+      - "merge to main"
+      - "integrate my changes"
+      - "merge this branch"
+      
   N/A:
     description: "User input is irrelevant to Git operations"
     examples:

@@ -26,6 +26,8 @@ Output ONLY one of these intent commands:
   Examples: "pull changes", "get latest", "sync with remote"
 - **remote** - User wants to see remote info
   Examples: "show remotes", "list remotes", "check remotes"
+- **merge** - User wants to merge current branch into main
+  Examples: "merge into main", "merge my branch", "merge to main"
 - **N/A** - User input is irrelevant to Git operations
   Examples: "what's the weather", "hello", "how are you"
 

@@ -451,3 +451,48 @@
   none:
     output: "Not a Git repository. Use 'git init' first."
     reason: "Repository not initialized"
+
+"merge into main":
+  normal_remote_clean:
+    output: "git switch main && git merge feature-branch && git push"
+    reason: "Switch to main, merge current branch, and push to remote"
+
+  normal_remote_unstaged:
+    output: "Commit or stash changes first before merging"
+    reason: "Has uncommitted changes that need to be handled first"
+
+  normal_remote_staged:
+    output: "Commit or stash changes first before merging"
+    reason: "Has uncommitted changes that need to be handled first"
+
+  normal_remote_partial:
+    output: "Commit or stash changes first before merging"
+    reason: "Has uncommitted changes that need to be handled first"
+
+  normal_noremote_clean:
+    output: "git switch main && git merge feature-branch"
+    reason: "Switch to main and merge current branch (no remote to push to)"
+
+  normal_noremote_unstaged:
+    output: "Commit or stash changes first before merging"
+    reason: "Has uncommitted changes that need to be handled first"
+
+  normal_noremote_staged:
+    output: "Commit or stash changes first before merging"
+    reason: "Has uncommitted changes that need to be handled first"
+
+  normal_noremote_partial:
+    output: "Commit or stash changes first before merging"
+    reason: "Has uncommitted changes that need to be handled first"
+
+  normal_noupstream_clean:
+    output: "git switch main && git merge feature-branch && git push"
+    reason: "Switch to main, merge current branch, and push to remote"
+
+  detached_remote_clean:
+    output: "git switch main && git merge <detached-commit> && git push"
+    reason: "Switch to main, merge detached commit, and push to remote"
+
+  none:
+    output: "Not a Git repository. Use 'git init' first."
+    reason: "Repository not initialized"

@@ -64,6 +64,8 @@ class RuleBasedPostProcessor:
             return self._handle_pull(git_context)
         elif intent == "remote":
             return self._handle_remote(git_context)
+        elif intent == "merge":
+            return self._handle_merge(git_context)
         else:
             return f"Unhandled intent: {intent}"
     
@@ -198,6 +200,29 @@ class RuleBasedPostProcessor:
             return "Not a Git repository. Use 'git init' first."
         
         return "git remote -v"
+    
+    def _handle_merge(self, git_context: Optional[Dict]) -> str:
+        """Handle merge intent with context awareness."""
+        if not self.git_context_enabled or not git_context:
+            return "git switch main && git merge <current-branch> && git push"
+        
+        if not git_context.get("is_repo", False):
+            return "Not a Git repository. Use 'git init' first."
+        
+        # Check if already on main branch
+        current_branch = git_context.get("branch", "main")
+        if current_branch == "main":
+            return "Already on main branch"
+        
+        # Check for uncommitted changes (warn user to commit first)
+        if git_context.get("has_uncommitted", False):
+            return "Commit or stash changes first before merging"
+        
+        # Check if remote exists to determine if we should push
+        if git_context.get("remote_exists", False):
+            return f"git switch main && git merge {current_branch} && git push"
+        else:
+            return f"git switch main && git merge {current_branch}"
 
 
 def process_intent(intent: str, git_context_enabled: bool, git_context_str: str = None) -> str:
