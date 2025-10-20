@@ -1,7 +1,6 @@
 """
 GitMate Service - Core pipeline logic for processing git-related messages.
 """
-import yaml
 from pathlib import Path
 from gitmate.config import PROMPTS_DIR, MLX_MODEL_DIR, TRANSFORMERS_MODEL_DIR
 from gitmate.lib.git_context import get_git_context
@@ -68,16 +67,15 @@ class GitMateService:
         Returns:
             str: Validation error message or None if valid
         """
-        # Get git context and check if repository exists
+        # Simple check without calling get_git_context() to avoid double execution
         try:
-            git_context = yaml.safe_load(get_git_context()) or {}
-            if not git_context.get("is_repo", False):
-                return "Not a Git repository. Use 'git init' first."
+            from dulwich.repo import Repo
+            from pathlib import Path
+            repo = Repo(str(Path.cwd()))
+            repo.close()
+            return None  # Valid repo
         except Exception:
-            # If there's an error parsing git context, skip validation
-            return None
-            
-        return None
+            return "Not a Git repository. Use 'git init' first."
     
     def _ensure_model_loaded(self):
         """Load model and tokenizer if not already loaded."""
