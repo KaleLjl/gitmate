@@ -9,8 +9,6 @@ intents:
       - "commit my changes"
       - "save my work"
       - "create a commit"
-      - "save changes"
-      - "commit the files"
       
   push:
     description: "User wants to upload to remote"
@@ -18,8 +16,6 @@ intents:
       - "push to remote"
       - "upload changes"
       - "send to github"
-      - "push changes"
-      - "upload to remote"
       
   init:
     description: "User wants to start a repository"
@@ -27,8 +23,6 @@ intents:
       - "initialize repo"
       - "start git repo"
       - "create repository"
-      - "init git"
-      - "initialize repository"
       
   status:
     description: "User wants to see current state"
@@ -36,8 +30,6 @@ intents:
       - "show status"
       - "what's changed"
       - "check status"
-      - "show me the status"
-      - "git status"
       
   branch:
     description: "User wants to work with branches"
@@ -45,8 +37,6 @@ intents:
       - "create branch"
       - "new feature branch"
       - "make a branch"
-      - "create a new branch"
-      - "branch feature"
       
   add:
     description: "User wants to stage files"
@@ -54,8 +44,6 @@ intents:
       - "add files"
       - "stage changes"
       - "include files"
-      - "add all files"
-      - "stage files"
       
   log:
     description: "User wants to see history"
@@ -63,8 +51,6 @@ intents:
       - "show history"
       - "commit log"
       - "see commits"
-      - "show commit history"
-      - "git log"
       
   switch:
     description: "User wants to switch context"
@@ -72,8 +58,6 @@ intents:
       - "switch branch"
       - "go to main"
       - "change branch"
-      - "switch to main"
-      - "checkout branch"
       
   pull:
     description: "User wants to get remote changes"
@@ -81,8 +65,6 @@ intents:
       - "pull changes"
       - "get latest"
       - "sync with remote"
-      - "pull latest changes"
-      - "update from remote"
       
   remote:
     description: "User wants to see remote info"
@@ -90,8 +72,6 @@ intents:
       - "show remotes"
       - "list remotes"
       - "check remotes"
-      - "show remote info"
-      - "remote repositories"
       
   merge:
     description: "User wants to merge current branch into main"
@@ -99,14 +79,9 @@ intents:
       - "merge into main"
       - "merge my branch"
       - "merge to main"
-      - "integrate my changes"
-      - "merge this branch"
       
   N/A:
     description: "User input is irrelevant to Git operations"
     examples:
       - "what's the weather"
       - "hello"
-      - "how are you"
-      - "good morning"
-      - "help me with python"

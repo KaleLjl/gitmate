@@ -37,6 +37,15 @@ def get_all_examples() -> List[str]:
         examples.extend(intent_data.get('examples', []))
     return examples
 
+def get_intent_mapping() -> Dict[str, str]:
+    """Get mapping from example messages to intent names."""
+    intents = load_intents()
+    message_to_intent = {}
+    for intent_name, intent_data in intents['intents'].items():
+        for example in intent_data.get('examples', []):
+            message_to_intent[example] = intent_name
+    return message_to_intent
+
 def validate_intent(intent_name: str) -> bool:
     """Check if intent name is valid."""
     return intent_name in get_intent_names()

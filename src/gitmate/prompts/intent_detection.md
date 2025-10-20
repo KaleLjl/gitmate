@@ -29,7 +29,7 @@ Output ONLY one of these intent commands:
 - **merge** - User wants to merge current branch into main
   Examples: "merge into main", "merge my branch", "merge to main"
 - **N/A** - User input is irrelevant to Git operations
-  Examples: "what's the weather", "hello", "how are you"
+  Examples: "what's the weather", "hello"
 
 ## Instructions
 
