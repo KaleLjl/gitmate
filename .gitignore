@@ -8,15 +8,12 @@ wheels/
 
 # Virtual environments
 .venv
-conversations/
 
 # Test reports
-src/gitmate/test/reports/
+src/gitmate/test/
 
 git_info.json
 
-# Model files
-models/
 
 .DS_Store
 
